@@ -1,4 +1,4 @@
-#!/bin/bash
+y#!/bin/bash
 fun_bar () {
 comando[0]="$1"
 comando[1]="$2"
@@ -320,7 +320,7 @@ echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━�
 echo -e "\033[1;32mOnlines:\033[1;37m $_onlin     \033[1;31mPasibaige: \033[1;37m$_userexp \033[1;33mTotal: \033[1;37m$_tuser\033[0m"
 echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo ""
-echo -e "\033[1;33m[01] \033[1;33mSUKURTI VARTOTOJĄ           \033[0m    \033[1;33m[11] \033[1;37mSPEEDTEST\033[0m"
+echo -e "\033[1;33m[01] \033[1;33mSUKURTI VARTOTOJĄ           \033[0m    \033[1;33m[11] \033[1;33mSPEEDTEST\033[0m"
 echo -e "\033[1;33m[02] \033[1;33mSUKURTI TEST VARTOTOJĄ      \033[0m    \033[1;33m[12] \033[1;33mBANNERIS\033[0m"
 echo -e "\033[1;33m[03] \033[1;33mISTRINTI VARTOTOJĄ           \033[0m   \033[1;33m[13] \033[1;33mTRAFIKAS\033[0m"
 echo -e "\033[1;33m[04] \033[1;33mONLINE MONITORIUS           \033[0m    \033[1;33m[14] \033[1;33mOPTIMIZUOTI\033[0m"

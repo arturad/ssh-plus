@@ -132,15 +132,28 @@ menu
 clear
 
 echo "=============================="
-echo "   PRISIJUNGĘ VARTOTOJAI"
+echo "      VPN VARTOTOJAI"
 echo "=============================="
 echo ""
 
-who | awk '{print "Vartotojas: " $1 " | IP: " $5}'
+if [ -s /etc/arturo/limitai.db ]; then
+
+while read user limit; do
+
+exp=$(chage -l "$user" 2>/dev/null | grep "Account expires" | cut -d: -f2)
+
+echo "Vartotojas : $user"
+echo "Limitas    : $limit"
+echo "Galioja iki:$exp"
+echo "------------------------------"
+
+done < /etc/arturo/limitai.db
+
+else
+    echo "Vartotojų nėra."
+fi
 
 echo ""
-echo "=============================="
-
 read -p "Spausk ENTER..." pause
 menu
 ;;

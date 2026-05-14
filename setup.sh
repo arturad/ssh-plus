@@ -106,7 +106,6 @@ echo "======================"
 read -p "Spausk ENTER..."
 menu
 ;;
-;;
 
 3)
 clear

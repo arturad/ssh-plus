@@ -326,18 +326,18 @@ menu
 15|15)
 clear
 
-if pgrep badvpn-udpgw > /dev/null; then
-    BADVPN_STATUS="ĮJUNGTAS"
+if pgrep -f "badvpn-udpgw" >/dev/null; then
+    BADVPN_STATUS="IJUNGTAS"
 else
-    BADVPN_STATUS="IŠJUNGTAS"
+    BADVPN_STATUS="ISJUNGTAS"
 fi
 
 echo "======================"
 echo " BADVPN [$BADVPN_STATUS]"
 echo "======================"
 echo ""
-echo "[1] Įjungti BADVPN"
-echo "[2] Išjungti BADVPN"
+echo "[1] Ijungti BADVPN"
+echo "[2] Isjungti BADVPN"
 echo ""
 
 read -p "Pasirinkimas: " bad
@@ -345,22 +345,37 @@ read -p "Pasirinkimas: " bad
 case $bad in
 
 1)
+pkill -f badvpn-udpgw 2>/dev/null
 screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
 
-echo ""
-echo "BADVPN paleistas!"
+sleep 1
+
+if pgrep -f "badvpn-udpgw" >/dev/null; then
+    echo ""
+    echo "BADVPN paleistas! Statusas: IJUNGTAS"
+else
+    echo ""
+    echo "BADVPN nepasileido!"
+fi
 ;;
 
 2)
-pkill badvpn-udpgw
+pkill -f badvpn-udpgw 2>/dev/null
+sleep 1
 
-echo ""
-echo "BADVPN sustabdytas!"
+if pgrep -f "badvpn-udpgw" >/dev/null; then
+    echo ""
+    echo "BADVPN vis dar veikia!"
+else
+    echo ""
+    echo "BADVPN sustabdytas! Statusas: ISJUNGTAS"
+fi
 ;;
 
 *)
 echo "Neteisingas pasirinkimas!"
 ;;
+
 esac
 
 read -p "Spausk ENTER..." pause

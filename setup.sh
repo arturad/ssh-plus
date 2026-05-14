@@ -284,12 +284,45 @@ clear
 wget -O /root/setup.sh https://raw.githubusercontent.com/arturad/ssh-plus/main/setup.sh
 bash /root/setup.sh
 ;;
-14|14)
+14)
 clear
-iptables -A FORWARD -m string --string "torrent" --algo bm -j DROP
-echo "Torrentai blokuoti!"
+echo "======================"
+echo " TORRENT BLOKAVIMAS"
+echo "======================"
+echo ""
+echo "[1] Blokuoti torrentus"
+echo "[2] Atblokuoti torrentus"
+echo ""
+
+read -p "Pasirinkimas: " tor
+
+case $tor in
+
+1)
+iptables -A OUTPUT -p tcp --dport 6881:6999 -j DROP
+iptables -A OUTPUT -p udp --dport 6881:6999 -j DROP
+
+echo ""
+echo "Torrentai užblokuoti!"
+;;
+
+2)
+iptables -D OUTPUT -p tcp --dport 6881:6999 -j DROP 2>/dev/null
+iptables -D OUTPUT -p udp --dport 6881:6999 -j DROP 2>/dev/null
+
+echo ""
+echo "Torrentai atblokuoti!"
+;;
+
+*)
+echo "Neteisingas pasirinkimas!"
+;;
+
+esac
+
 read -p "Spausk ENTER..." pause
 menu
+;;
 ;;
 15|15)
 clear

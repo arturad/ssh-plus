@@ -11,34 +11,21 @@ TIME=$(date +"%H:%M:%S")
 
 SSH_PORT=$(grep Port /etc/ssh/sshd_config | head -1 | awk '{print $2}')
 
-clear
-
-OS=$(lsb_release -ds | tr -d '"')
-RAM_TOTAL=$(free -h | awk '/Mem:/ {print $2}')
-RAM_USED=$(free | awk '/Mem:/ {printf("%.1f"), $3/$2 * 100}')
-CPU_USAGE=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}')
-TIME=$(date +"%H:%M:%S")
-
-SSH_PORT=$(grep Port /etc/ssh/sshd_config | head -1 | awk '{print $2}')
-
 echo -e "\033[1;34m====================================================\033[0m"
 echo -e "\033[1;37;41m   SSHPLUS MANAGER ⇌   by @Rolka ✩ @Arturas   \033[0m"
 echo -e "\033[1;34m====================================================\033[0m"
 
 echo ""
-
 echo -e "\033[1;32mSISTEMA\033[0m"
 echo -e "OS: $OS"
 echo -e "Laikas: $TIME"
 
 echo ""
-
 echo -e "\033[1;32mATMINTIS RAM\033[0m"
 echo -e "Iš viso: $RAM_TOTAL"
 echo -e "Naudoja: ${RAM_USED}%"
 
 echo ""
-
 echo -e "\033[1;32mPROCESORIUS\033[0m"
 echo -e "Naudoja: ${CPU_USAGE}%"
 
@@ -63,6 +50,7 @@ echo -e "\033[1;36m[08]\033[0m • BAD VPN"
 echo -e "\033[1;36m[09]\033[0m • INFO VPS"
 echo -e "\033[1;36m[10]\033[0m • AUTO-REBOOT"
 
+echo ""
 echo -e "\033[1;31m[00]\033[0m • IŠEITI"
 
 echo ""

@@ -83,7 +83,9 @@ useradd -e "$(date -d "$days days" +"%Y-%m-%d")" -M -s /bin/false "$user"
 echo "$user:$pass" | chpasswd
 
 mkdir -p /etc/arturo
-sed -i "/^$user /d" /etc/arturo/limitai.db 2>/dev/null
+touch /etc/arturo/limitai.db
+grep -v "^$user " /etc/arturo/limitai.db > /tmp/limitai 2>/dev/null
+mv /tmp/limitai /etc/arturo/limitai.db 2>/dev/null
 echo "$user $limit" >> /etc/arturo/limitai.db
 
 echo ""

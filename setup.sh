@@ -83,8 +83,17 @@ echo "==============="
 2)
 clear
 read -p "Vartotojas ištrynimui: " user
-userdel --force $user
+
+userdel --force $user 2>/dev/null
+
+sed -i "/^$user /d" /etc/arturo/limitai.db 2>/dev/null
+
+echo ""
+echo "=================="
 echo "Vartotojas pašalintas!"
+echo "User: $user"
+echo "=================="
+;;
 ;;
 
 3)

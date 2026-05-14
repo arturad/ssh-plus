@@ -10,7 +10,8 @@ apt install -y curl wget sudo cron net-tools lsb-release dropbear squid neofetch
 
 mkdir -p /etc/arturo
 touch /etc/arturo/limitai.db
-
+systemctl enable vnstat 2>/dev/null
+systemctl restart vnstat 2>/dev/null
 cat > /usr/local/bin/menu << 'EOF'
 #!/bin/bash
 

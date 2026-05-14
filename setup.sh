@@ -198,34 +198,40 @@ clear
 neofetch
 ;;
 
-5|05)
+5)
 clear
 
-echo "=============================="
-echo " SERVISŲ PERKROVIMAS"
-echo "=============================="
+echo "======================"
+echo " VPN VARTOTOJAI"
+echo "======================"
 echo ""
 
-systemctl restart ssh
-systemctl restart dropbear
-systemctl restart squid
-
-echo "SSH      : PERKRAUTA"
-echo "DROPBEAR : PERKRAUTA"
-echo "SQUID    : PERKRAUTA"
-
-if systemctl is-active --quiet badvpn; then
-    systemctl restart badvpn
-    echo "BADVPN   : PERKRAUTA"
+if [ -s /etc/arturo/limitai.db ]; then
+    awk '{print $1 " | limitas: " $2}' /etc/arturo/limitai.db
+else
+    echo "Vartotojų nėra."
 fi
 
 echo ""
-echo "=============================="
+read -p "Iveskite vartotoja: " user
+read -p "Naujas limitas: " limit
+
+if id "$user" >/dev/null 2>&1; then
+    sed -i "/^$user /d" /etc/arturo/limitai.db
+    echo "$user $limit" >> /etc/arturo/limitai.db
+
+    echo ""
+    echo "======================"
+    echo "Limitas pakeistas!"
+    echo "Vartotojas: $user"
+    echo "Naujas limitas: $limit"
+    echo "======================"
+else
+    echo "Toks vartotojas nerastas!"
+fi
 
 read -p "Spausk ENTER..." pause
-clear
-bash /usr/local/bin/menu
-exit
+menu
 ;;
 
 6|06)

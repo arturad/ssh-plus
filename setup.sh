@@ -103,9 +103,11 @@ echo "Vartotojas pašalintas!"
 echo "User: $user"
 echo "======================"
 
-read -p "Spausk ENTER..." pause
-menu
-;;
+106 read -p "Spausk ENTER..." pause
+107 clear
+108 bash /usr/local/bin/menu
+109 exit
+110 ;;
 
 3)
 clear

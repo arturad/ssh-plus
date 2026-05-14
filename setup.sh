@@ -84,30 +84,37 @@ echo "==============="
 clear
 
 echo "======================"
-echo " ESAMI VARTOTOJAI"
+echo " ESAMI VPN VARTOTOJAI"
 echo "======================"
 echo ""
 
-cut -d: -f1 /etc/passwd | grep -E '^[a-zA-Z0-9]' | tail -n +1
+if [ -f /etc/arturo/limitai.db ]; then
+    awk '{print $1 "  | limitas: " $2}' /etc/arturo/limitai.db
+else
+    echo "Vartotojų nėra."
+fi
 
 echo ""
 read -p "Vartotojas ištrynimui: " user
 
-userdel --force $user 2>/dev/null
+if id "$user" >/dev/null 2>&1; then
+    userdel --force "$user"
+    sed -i "/^$user /d" /etc/arturo/limitai.db 2>/dev/null
 
-sed -i "/^$user /d" /etc/arturo/limitai.db 2>/dev/null
+    echo ""
+    echo "======================"
+    echo "Vartotojas pašalintas!"
+    echo "User: $user"
+    echo "======================"
+else
+    echo "Toks vartotojas nerastas!"
+fi
 
-echo ""
-echo "======================"
-echo "Vartotojas pašalintas!"
-echo "User: $user"
-echo "======================"
-
-106 read -p "Spausk ENTER..." pause
-107 clear
-108 bash /usr/local/bin/menu
-109 exit
-110 ;;
+read -p "Spausk ENTER..." pause
+clear
+bash /usr/local/bin/menu
+exit
+;;
 
 3)
 clear

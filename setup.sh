@@ -134,7 +134,26 @@ menu
 ;;
 3|03)
 clear
-who
+
+echo "========================"
+echo " VPN VARTOTOJAI"
+echo "========================"
+echo ""
+
+if [ -s /etc/arturo/limitai.db ]; then
+    while read user limit; do
+        exp=$(chage -l "$user" 2>/dev/null | grep "Account expires" | cut -d: -f2 | xargs)
+
+        echo "Vartotojas : $user"
+        echo "Limitas    : $limit"
+        echo "Galioja iki: $exp"
+        echo "------------------------"
+    done < /etc/arturo/limitai.db
+else
+    echo "Vartotojų nėra."
+fi
+
+echo ""
 read -p "Spausk ENTER..." pause
 menu
 ;;

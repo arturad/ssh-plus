@@ -130,7 +130,17 @@ menu
 
 3|03)
 clear
-who
+
+echo "=============================="
+echo "   PRISIJUNGĘ VARTOTOJAI"
+echo "=============================="
+echo ""
+
+who | awk '{print "Vartotojas: " $1 " | IP: " $5}'
+
+echo ""
+echo "=============================="
+
 read -p "Spausk ENTER..." pause
 menu
 ;;

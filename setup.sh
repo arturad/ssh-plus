@@ -325,8 +325,15 @@ menu
 ;;
 15|15)
 clear
+
+if pgrep badvpn-udpgw > /dev/null; then
+    BADVPN_STATUS="ĮJUNGTAS"
+else
+    BADVPN_STATUS="IŠJUNGTAS"
+fi
+
 echo "======================"
-echo "      BADVPN"
+echo " BADVPN [$BADVPN_STATUS]"
 echo "======================"
 echo ""
 echo "[1] Įjungti BADVPN"

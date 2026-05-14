@@ -1,3 +1,25 @@
+#!/bin/bash
+
+clear
+
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+if [[ $EUID -ne 0 ]]; then
+    echo -e "${RED}Paleisk kaip root!${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}=== Arturo Scriptas VPN sistema ===${NC}"
+
+apt update -y
+apt install -y curl wget sudo cron net-tools lsb-release dropbear squid
+
+mkdir -p /etc/arturo
+touch /etc/arturo/limitai.db
+
 cat > /usr/local/bin/menu << 'EOF'
 #!/bin/bash
 
@@ -8,8 +30,8 @@ RAM_TOTAL=$(free -h | awk '/Mem:/ {print $2}')
 RAM_USED=$(free | awk '/Mem:/ {printf("%.1f"), $3/$2 * 100}')
 CPU_USAGE=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}')
 TIME=$(date +"%H:%M:%S")
-
-SSH_PORT=$(grep Port /etc/ssh/sshd_config | head -1 | awk '{print $2}')
+SSH_PORT=$(grep -E "^Port " /etc/ssh/sshd_config | head -1 | awk '{print $2}')
+[ -z "$SSH_PORT" ] && SSH_PORT="22"
 
 echo -e "\033[1;34m====================================================\033[0m"
 echo -e "\033[1;37;41m   SSHPLUS MANAGER ⇌   by @Rolka ✩ @Arturas   \033[0m"
@@ -17,26 +39,24 @@ echo -e "\033[1;34m====================================================\033[0m"
 
 echo ""
 echo -e "\033[1;32mSISTEMA\033[0m"
-echo -e "OS: $OS"
-echo -e "Laikas: $TIME"
+echo "OS: $OS"
+echo "Laikas: $TIME"
 
 echo ""
 echo -e "\033[1;32mATMINTIS RAM\033[0m"
-echo -e "Iš viso: $RAM_TOTAL"
-echo -e "Naudoja: ${RAM_USED}%"
+echo "Iš viso: $RAM_TOTAL"
+echo "Naudoja: ${RAM_USED}%"
 
 echo ""
 echo -e "\033[1;32mPROCESORIUS\033[0m"
-echo -e "Naudoja: ${CPU_USAGE}%"
+echo "Naudoja: ${CPU_USAGE}%"
 
 echo ""
 echo -e "\033[1;34m====================================================\033[0m"
-
-echo -e "sshd: ${SSH_PORT:-22}"
-echo -e "dropbear: 443"
-echo -e "squid: 3128"
-echo -e "badvpn-udpgw: 7300"
-
+echo "sshd: $SSH_PORT"
+echo "dropbear: 443"
+echo "squid: 3128"
+echo "badvpn-udpgw: 7300"
 echo -e "\033[1;34m====================================================\033[0m"
 
 echo -e "\033[1;36m[01]\033[0m • SUKURTI VARTOTOJĄ"
@@ -45,51 +65,48 @@ echo -e "\033[1;36m[03]\033[0m • PRISIJUNGĘ VARTOTOJAI"
 echo -e "\033[1;36m[04]\033[0m • SERVERIO INFORMACIJA"
 echo -e "\033[1;36m[05]\033[0m • PERKRAUTI SERVISUS"
 echo -e "\033[1;36m[06]\033[0m • SPEEDTEST"
-echo -e "\033[1;36m[07]\033[0m • BACKUP"
-echo -e "\033[1;36m[08]\033[0m • BAD VPN"
-echo -e "\033[1;36m[09]\033[0m • INFO VPS"
-echo -e "\033[1;36m[10]\033[0m • AUTO-REBOOT"
-
-echo ""
 echo -e "\033[1;31m[00]\033[0m • IŠEITI"
 
 echo ""
 read -p "KĄ NORITE DARYTI ?? : " opc
 
-case $opc in
+case "$opc" in
 
-1)
+1|01)
 clear
 read -p "Vartotojas: " user
 read -p "Slaptažodis: " pass
 read -p "Dienų skaičius: " days
 read -p "Prisijungimų limitas: " limit
 
-useradd -e $(date -d "$days days" +"%Y-%m-%d") -M -s /bin/false $user
+useradd -e "$(date -d "$days days" +"%Y-%m-%d")" -M -s /bin/false "$user"
+echo "$user:$pass" | chpasswd
+
 mkdir -p /etc/arturo
+sed -i "/^$user /d" /etc/arturo/limitai.db 2>/dev/null
 echo "$user $limit" >> /etc/arturo/limitai.db
 
 echo ""
-echo ""
-echo "==============="
+echo "======================"
 echo "Vartotojas sukurtas!"
 echo "User: $user"
 echo "Pass: $pass"
 echo "Galioja: $days dienų"
 echo "Limitas: $limit"
-echo "==============="
+echo "======================"
+read -p "Spausk ENTER..." pause
+menu
 ;;
 
-2)
+2|02)
 clear
-
 echo "======================"
 echo " ESAMI VPN VARTOTOJAI"
 echo "======================"
 echo ""
 
-if [ -f /etc/arturo/limitai.db ]; then
-    awk '{print $1 "  | limitas: " $2}' /etc/arturo/limitai.db
+if [ -s /etc/arturo/limitai.db ]; then
+    awk '{print $1 " | limitas: " $2}' /etc/arturo/limitai.db
 else
     echo "Vartotojų nėra."
 fi
@@ -100,51 +117,65 @@ read -p "Vartotojas ištrynimui: " user
 if id "$user" >/dev/null 2>&1; then
     userdel --force "$user"
     sed -i "/^$user /d" /etc/arturo/limitai.db 2>/dev/null
-
     echo ""
-    echo "======================"
-    echo "Vartotojas pašalintas!"
-    echo "User: $user"
-    echo "======================"
+    echo "Vartotojas pašalintas: $user"
 else
+    echo ""
     echo "Toks vartotojas nerastas!"
 fi
 
 read -p "Spausk ENTER..." pause
-clear
-bash /usr/local/bin/menu
-exit
+menu
 ;;
 
-3)
+3|03)
 clear
 who
+read -p "Spausk ENTER..." pause
+menu
 ;;
 
-4)
+4|04)
 clear
-neofetch
+echo "Serverio IP:"
+curl -s ifconfig.me
+echo ""
+echo "OS: $OS"
+echo "RAM: $RAM_TOTAL"
+read -p "Spausk ENTER..." pause
+menu
 ;;
 
-5)
-systemctl restart ssh
-systemctl restart dropbear
-systemctl restart squid
+5|05)
+systemctl restart ssh 2>/dev/null
+systemctl restart dropbear 2>/dev/null
+systemctl restart squid 2>/dev/null
 echo "Servisai perkrauti!"
+read -p "Spausk ENTER..." pause
+menu
 ;;
 
-6)
-speedtest
+6|06)
+clear
+echo "Speedtest funkciją pridėsim kitame žingsnyje."
+read -p "Spausk ENTER..." pause
+menu
 ;;
 
-0)
+0|00)
 exit
 ;;
 
 *)
 echo "Neteisingas pasirinkimas!"
+read -p "Spausk ENTER..." pause
+menu
 ;;
 
 esac
-
 EOF
+
+chmod +x /usr/local/bin/menu
+
+echo -e "${GREEN}Diegimas baigtas! Paleisk: menu${NC}"
+menu

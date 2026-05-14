@@ -325,8 +325,37 @@ menu
 ;;
 15|15)
 clear
+echo "======================"
+echo "      BADVPN"
+echo "======================"
+echo ""
+echo "[1] Įjungti BADVPN"
+echo "[2] Išjungti BADVPN"
+echo ""
+
+read -p "Pasirinkimas: " bad
+
+case $bad in
+
+1)
 screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
+
+echo ""
 echo "BADVPN paleistas!"
+;;
+
+2)
+pkill badvpn-udpgw
+
+echo ""
+echo "BADVPN sustabdytas!"
+;;
+
+*)
+echo "Neteisingas pasirinkimas!"
+;;
+esac
+
 read -p "Spausk ENTER..." pause
 menu
 ;;

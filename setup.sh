@@ -82,6 +82,15 @@ echo "==============="
 
 2)
 clear
+
+echo "======================"
+echo " ESAMI VARTOTOJAI"
+echo "======================"
+echo ""
+
+cut -d: -f1 /etc/passwd | grep -E '^[a-zA-Z0-9]' | tail -n +1
+
+echo ""
 read -p "Vartotojas ištrynimui: " user
 
 userdel --force $user 2>/dev/null
@@ -89,10 +98,14 @@ userdel --force $user 2>/dev/null
 sed -i "/^$user /d" /etc/arturo/limitai.db 2>/dev/null
 
 echo ""
-echo "=================="
+echo "======================"
 echo "Vartotojas pašalintas!"
 echo "User: $user"
-echo "=================="
+echo "======================"
+
+read -p "Spausk ENTER..."
+menu
+;;
 ;;
 ;;
 

@@ -6,12 +6,14 @@ BLUE='\033[1;34m'
 NC='\033[0m'
 
 apt update -y
-apt install -y curl wget sudo cron net-tools lsb-release dropbear squid neofetch vnstat speedtest-cli
+apt install -y curl wget sudo cron net-tools lsb-release dropbear squid neofetch vnstat
 
 mkdir -p /etc/arturo
 touch /etc/arturo/limitai.db
 systemctl enable vnstat 2>/dev/null
 systemctl restart vnstat 2>/dev/null
+curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
+apt install -y speedtest
 cat > /usr/local/bin/menu << 'EOF'
 #!/bin/bash
 

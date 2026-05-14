@@ -63,12 +63,21 @@ clear
 read -p "Vartotojas: " user
 read -p "Slaptažodis: " pass
 read -p "Dienų skaičius: " days
+read -p "Prisijungimų limitas: " limit
 
 useradd -e $(date -d "$days days" +"%Y-%m-%d") -M -s /bin/false $user
-echo "$user:$pass" | chpasswd
+mkdir -p /etc/arturo
+echo "$user $limit" >> /etc/arturo/limitai.db
 
 echo ""
+echo ""
+echo "==============="
 echo "Vartotojas sukurtas!"
+echo "User: $user"
+echo "Pass: $pass"
+echo "Galioja: $days dienų"
+echo "Limitas: $limit"
+echo "==============="
 ;;
 
 2)

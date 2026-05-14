@@ -163,33 +163,39 @@ read -p "Spausk ENTER..." pause
 menu
 ;;
 
-4|04)
+4)
 clear
+read -p "Iveskite vartotoja: " user
+read -p "Kiek dienu prideti: " extra
 
-IP=$(curl -s ipv4.icanhazip.com)
-RAM=$(free -h | awk '/Mem:/ {print $3 "/" $2}')
-DISK=$(df -h / | awk 'NR==2 {print $3 "/" $2}')
-UPTIME=$(uptime -p)
-CPU=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}')
-OS=$(lsb_release -ds)
+if chage -l "$user" >/dev/null 2>&1; then
+    current=$(chage -l "$user" | grep "Account expires" | cut -d: -f2)
 
-echo "=============================="
-echo " SERVERIO INFORMACIJA"
-echo "=============================="
-echo ""
-echo "IP adresas : $IP"
-echo "OS         : $OS"
-echo "RAM        : $RAM"
-echo "DISKAS     : $DISK"
-echo "CPU LOAD   : $CPU%"
-echo "UPTIME     : $UPTIME"
-echo ""
-echo "=============================="
+    if [[ "$current" == " never" ]]; then
+        newdate=$(date -d "+$extra days" +"%Y-%m-%d")
+    else
+        newdate=$(date -d "$current +$extra days" +"%Y-%m-%d")
+    fi
+
+    chage -E "$newdate" "$user"
+
+    echo ""
+    echo "======================"
+    echo "Data pakeista!"
+    echo "Vartotojas: $user"
+    echo "Galioja iki: $newdate"
+    echo "======================"
+else
+    echo "Toks vartotojas nerastas!"
+fi
 
 read -p "Spausk ENTER..." pause
+menu
+;;
+
+5)
 clear
-bash /usr/local/bin/menu
-exit
+neofetch
 ;;
 
 5|05)

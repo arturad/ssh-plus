@@ -323,7 +323,6 @@ esac
 read -p "Spausk ENTER..." pause
 menu
 ;;
-;;
 15|15)
 clear
 screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300

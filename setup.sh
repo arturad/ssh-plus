@@ -195,11 +195,6 @@ menu
 
 5)
 clear
-neofetch
-;;
-
-5)
-clear
 
 echo "======================"
 echo " VPN VARTOTOJAI"

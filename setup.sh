@@ -190,12 +190,33 @@ exit
 ;;
 
 5|05)
-systemctl restart ssh 2>/dev/null
-systemctl restart dropbear 2>/dev/null
-systemctl restart squid 2>/dev/null
-echo "Servisai perkrauti!"
+clear
+
+echo "=============================="
+echo " SERVISŲ PERKROVIMAS"
+echo "=============================="
+echo ""
+
+systemctl restart ssh
+systemctl restart dropbear
+systemctl restart squid
+
+echo "SSH      : PERKRAUTA"
+echo "DROPBEAR : PERKRAUTA"
+echo "SQUID    : PERKRAUTA"
+
+if systemctl is-active --quiet badvpn; then
+    systemctl restart badvpn
+    echo "BADVPN   : PERKRAUTA"
+fi
+
+echo ""
+echo "=============================="
+
 read -p "Spausk ENTER..." pause
-menu
+clear
+bash /usr/local/bin/menu
+exit
 ;;
 
 6|06)

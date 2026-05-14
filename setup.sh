@@ -6,7 +6,7 @@ BLUE='\033[1;34m'
 NC='\033[0m'
 
 apt update -y
-apt install -y curl wget sudo cron net-tools lsb-release dropbear squid neofetch
+apt install -y curl wget sudo cron net-tools lsb-release dropbear squid neofetch vnstat
 
 mkdir -p /etc/arturo
 touch /etc/arturo/limitai.db

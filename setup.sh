@@ -162,13 +162,31 @@ menu
 
 4|04)
 clear
-echo "Serverio IP:"
-curl -s ifconfig.me
+
+IP=$(curl -s ipv4.icanhazip.com)
+RAM=$(free -h | awk '/Mem:/ {print $3 "/" $2}')
+DISK=$(df -h / | awk 'NR==2 {print $3 "/" $2}')
+UPTIME=$(uptime -p)
+CPU=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}')
+OS=$(lsb_release -ds)
+
+echo "=============================="
+echo " SERVERIO INFORMACIJA"
+echo "=============================="
 echo ""
-echo "OS: $OS"
-echo "RAM: $RAM_TOTAL"
+echo "IP adresas : $IP"
+echo "OS         : $OS"
+echo "RAM        : $RAM"
+echo "DISKAS     : $DISK"
+echo "CPU LOAD   : $CPU%"
+echo "UPTIME     : $UPTIME"
+echo ""
+echo "=============================="
+
 read -p "Spausk ENTER..." pause
-menu
+clear
+bash /usr/local/bin/menu
+exit
 ;;
 
 5|05)

@@ -103,8 +103,9 @@ echo "Vartotojas pašalintas!"
 echo "User: $user"
 echo "======================"
 
-read -p "Spausk ENTER..."
+read -p "Spausk ENTER..." pause
 menu
+;;
 ;;
 
 3)

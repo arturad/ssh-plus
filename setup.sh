@@ -105,7 +105,8 @@ http_access allow all
 visible_hostname Arturo
 EOF
 
-sed -i 's/Listen 80/Listen 8888/g' /etc/apache2/ports.conf
+sed -i 's/^Listen .*/Listen 8888/g' /etc/apache2/ports.conf
+sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8888>/g' /etc/apache2/sites-enabled/000-default.conf
 sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
 
 systemctl enable squid
@@ -116,6 +117,7 @@ systemctl restart apache2
 
 systemctl enable stunnel4
 systemctl restart stunnel4
+systemctl start stunnel4
 systemctl daemon-reload
 systemctl enable nodews
 systemctl restart nodews

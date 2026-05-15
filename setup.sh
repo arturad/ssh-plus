@@ -182,13 +182,6 @@ echo -e "\033[1;32mPROCESORIUS\033[0m"
 echo "Naudoja: ${CPU_USAGE}%"
 
 echo ""
-echo -e "\033[1;34m==================================================\033[0m"
-echo "sshd: $SSH_PORT"
-echo "dropbear: 110"
-echo "squid: 8080"
-echo "badvpn-udpgw: 7300"
-echo -e "\033[1;34m==================================================\033[0m"
-echo ""
 echo -e "\033[1;34m=========== SERVICE STATUS ===========\033[0m"
 
 systemctl is-active --quiet ssh && SSH_STATUS="\033[1;32mONLINE\033[0m" || SSH_STATUS="\033[1;31mOFFLINE\033[0m"

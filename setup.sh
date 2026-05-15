@@ -55,7 +55,7 @@ def handle(client):
             if line.lower().startswith("sec-websocket-key:"):
                 key = line.split(":", 1)[1].strip()
 
-        if not key:⁴
+        if not key:
             client.close()
             return
 

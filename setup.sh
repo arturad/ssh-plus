@@ -41,15 +41,7 @@ curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.
 
 apt install -y speedtest
 cd /usr/local/src
-rm -rf badvpn
-git clone https://github.com/ambrop72/badvpn.git
-cd badvpn
-mkdir -p build
-cd build
-cmake .. -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1
-make -j$(nproc)
-cp udpgw/badvpn-udpgw /usr/bin/badvpn-udpgw
-chmod +x /usr/bin/badvpn-udpgw
+rm 
 systemctl enable dropbear 2>/dev/null
 systemctl restart dropbear 2>/dev/null
 

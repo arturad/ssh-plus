@@ -26,7 +26,104 @@ cmake \
 python3 \
 python3-pip \
 apache2
+cat > /usr/local/bin/ws-server.py << 'PYEOF'
+import socket, threading, base64, hashlib
 
+LISTEN_HOST = "0.0.0.0"
+LISTEN_PORT = 80
+TARGET_HOST = "127.0.0.1"
+TARGET_PORT = 22
+
+def pipe(src, dst):
+    try:
+        while True:
+            data = src.recv(4096)
+            if not data:
+                break
+            dst.sendall(data)
+    except:
+        pass
+    finally:
+        src.close()
+        dst.close()
+
+def handle(client):
+    try:
+        request = client.recv(4096).decode(errors="ignore")
+        key = ""
+        for line in request.split("\r\n"):
+            if line.lower().startswith("sec-websocket-key:"):
+                key = line.split(":", 1)[1].strip()
+
+        if not key:
+            client.close()
+            return
+
+        accept = base64.b64encode(
+            hashlib.sha1((key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").encode()).digest()
+        ).decode()
+
+        response = (
+            "HTTP/1.1 101 Switching Protocols\r\n"
+            "Upgrade: websocket\r\n"
+            "Connection: Upgrade\r\n"
+            f"Sec-WebSocket-Accept: {accept}\r\n\r\n"
+        )
+
+        client.sendall(response.encode())
+
+        target = socket.create_connection((TARGET_HOST, TARGET_PORT))
+
+        threading.Thread(target=pipe, args=(client, target), daemon=True).start()
+        pipe(target, client)
+
+    except:
+        client.close()
+
+server = socket.socket()
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server.bind((LISTEN_HOST, LISTEN_PORT))
+server.listen(100)
+
+while True:
+    client, addr = server.accept()
+    threading.Thread(target=handle, args=(client,), daemon=True).start()
+PYEOF
+
+cat > /etc/systemd/system/ws-server.service << 'EOFWS'
+[Unit]
+Description=SSH WebSocket Server
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /usr/local/bin/ws-server.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOFWS
+
+systemctl daemon-reload
+systemctl enable ws-server
+systemctl restart ws-server
+
+openssl req -new -x509 -days 3650 -nodes \
+-out /etc/stunnel/stunnel.pem \
+-keyout /etc/stunnel/stunnel.pem \
+-subj "/CN=localhost"
+
+cat > /etc/stunnel/stunnel.conf << 'EOFSSL'
+cert = /etc/stunnel/stunnel.pem
+client = no
+
+[ssh-ssl]
+accept = 443
+connect = 127.0.0.1:22
+EOFSSL
+
+sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
+systemctl enable stunnel4
+systemctl restart stunnel4
 mkdir -p /etc/arturo
 touch /etc/arturo/limitai.db
 

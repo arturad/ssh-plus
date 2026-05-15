@@ -10,23 +10,24 @@ apt update -y
 apt install -y \
 curl \
 wget \
-sudo \8
+sudo \
 cron \
 net-tools \
 lsb-release \
 dropbear \
 squid \
+apache2 \
+stunnel4 \
 neofetch \
 vnstat \
-stunnel4 \
 screen \
 git \
 build-essential \
 cmake \
 python3 \
 python3-pip \
-apache2
-apt install nodejs nginx -y
+nodejs \
+nginx
 
 mkdir -p /etc/rolka
 
@@ -97,7 +98,24 @@ server {
 EOF
 
 rm -f /etc/nginx/sites-enabled/default
+cat > /etc/squid/squid.conf << 'EOF'
+http_port 8080
+acl all src all
+http_access allow all
+visible_hostname Arturo
+EOF
 
+sed -i 's/Listen 80/Listen 8888/g' /etc/apache2/ports.conf
+sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
+
+systemctl enable squid
+systemctl restart squid
+
+systemctl enable apache2
+systemctl restart apache2
+
+systemctl enable stunnel4
+systemctl restart stunnel4
 systemctl daemon-reload
 systemctl enable nodews
 systemctl restart nodews

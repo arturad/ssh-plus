@@ -26,140 +26,82 @@ cmake \
 python3 \
 python3-pip \
 apache2
-cat > /usr/local/bin/ws-server.py << 'PYEOF'
-import socket
-import threading
-import base64
-import hashlib
-import struct
+apt install nodejs nginx -y
 
-LISTEN_HOST = "0.0.0.0"
-LISTEN_PORT = 80
-TARGET_HOST = "127.0.0.1"
-TARGET_PORT = 22
+mkdir -p /etc/rolka
 
-def recv_ws(sock):
-    h = sock.recv(2)
-    if len(h) < 2:
-        return b""
-    length = h[1] & 127
+cat > /etc/rolka/sh.js << 'EOF'
+const net = require('net');
 
-    if length == 126:
-        length = struct.unpack(">H", sock.recv(2))[0]
-    elif length == 127:
-        length = struct.unpack(">Q", sock.recv(8))[0]
+const server = net.createServer((socket) => {
 
-    mask = sock.recv(4)
-    data = sock.recv(length)
+    socket.write(
+        "HTTP/1.1 101 Switching Protocols\r\n\r\n"
+    );
 
-    return bytes(data[i] ^ mask[i % 4] for i in range(len(data)))
+    let ssh = null;
 
-def send_ws(sock, data):
-    if len(data) < 126:
-        header = bytes([0x82, len(data)])
-    elif len(data) < 65536:
-        header = bytes([0x82, 126]) + struct.pack(">H", len(data))
-    else:
-        header = bytes([0x82, 127]) + struct.pack(">Q", len(data))
+    socket.once('data', () => {
 
-    sock.sendall(header + data)
+        ssh = net.connect(22, '127.0.0.1', () => {
 
-def client_to_target(client, target):
-    try:
-        while True:
-            data = recv_ws(client)
-            if not data:
-                break
-            target.sendall(data)
-    except:
-        pass
-    finally:
-        try: client.close()
-        except: pass
-        try: target.close()
-        except: pass
+            socket.pipe(ssh);
+            ssh.pipe(socket);
 
-def target_to_client(target, client):
-    try:
-        while True:
-            data = target.recv(4096)
-            if not data:
-                break
-            send_ws(client, data)
-    except:
-        pass
-    finally:
-        try: client.close()
-        except: pass
-        try: target.close()
-        except: pass
+        });
 
-def handle(client):
-    try:
-        request = client.recv(4096).decode(errors="ignore")
+        ssh.setKeepAlive(true);
+        ssh.setNoDelay(true);
 
-        if "Upgrade: websocket" not in request and "upgrade: websocket" not in request:
-            client.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nWebSocket SSH Server OK\n")
-            client.close()
-            return
+        socket.setKeepAlive(true);
+        socket.setNoDelay(true);
 
-        key = ""
-        for line in request.split("\r\n"):
-            if line.lower().startswith("sec-websocket-key:"):
-                key = line.split(":", 1)[1].strip()
+        ssh.on('error', () => socket.destroy());
+        socket.on('error', () => ssh.destroy());
 
-        if not key:
-            client.close()
-            return
+    });
 
-        accept = base64.b64encode(
-            hashlib.sha1((key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").encode()).digest()
-        ).decode()
+});
 
-        response = (
-            "HTTP/1.1 101 Switching Protocols\r\n"
-            "Upgrade: websocket\r\n"
-            "Connection: Upgrade\r\n"
-            f"Sec-WebSocket-Accept: {accept}\r\n\r\n"
-        )
+server.listen(8088, () => {
+    console.log('WS bridge started');
+});
+EOF
 
-        client.sendall(response.encode())
-
-        target = socket.create_connection((TARGET_HOST, TARGET_PORT))
-
-        threading.Thread(target=client_to_target, args=(client, target), daemon=True).start()
-        threading.Thread(target=target_to_client, args=(target, client), daemon=True).start()
-
-    except:
-        try: client.close()
-        except: pass
-
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server.bind((LISTEN_HOST, LISTEN_PORT))
-server.listen(200)
-
-while True:
-    client, addr = server.accept()
-    threading.Thread(target=handle, args=(client,), daemon=True).start()
-PYEOF
-
-cat > /etc/systemd/system/ws-server.service << 'EOFWS'
+cat > /etc/systemd/system/nodews.service << 'EOF'
 [Unit]
-Description=SSH WebSocket Server
+Description=nodews bridge
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /usr/local/bin/ws-server.py
+ExecStart=/usr/bin/node /etc/rolka/sh.js
 Restart=always
 
 [Install]
 WantedBy=multi-user.target
-EOFWS
+EOF
+
+cat > /etc/nginx/conf.d/ws.conf << 'EOF'
+server {
+    listen 80 default_server;
+
+    location / {
+        proxy_pass http://127.0.0.1:8088;
+        proxy_http_version 1.1;
+
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+    }
+}
+EOF
+
+rm -f /etc/nginx/sites-enabled/default
 
 systemctl daemon-reload
-systemctl enable ws-server
-systemctl restart ws-server
+systemctl enable nodews
+systemctl restart nodews
+systemctl restart nginx
 
 openssl req -new -x509 -days 3650 -nodes \
 -out /etc/stunnel/stunnel.pem \

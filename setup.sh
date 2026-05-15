@@ -20,9 +20,11 @@ neofetch \
 vnstat \
 stunnel4 \
 screen \
+git \
+build-essential \
+cmake \
 python3 \
 python3-pip \
-badvpn \
 apache2
 
 mkdir -p /etc/arturo
@@ -38,7 +40,16 @@ rm -f /usr/bin/speedtest
 curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
 
 apt install -y speedtest
-apt install -y badvpn
+cd /usr/local/src
+rm -rf badvpn
+git clone https://github.com/ambrop72/badvpn.git
+cd badvpn
+mkdir -p build
+cd build
+cmake .. -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1
+make -j$(nproc)
+cp udpgw/badvpn-udpgw /usr/bin/badvpn-udpgw
+chmod +x /usr/bin/badvpn-udpgw
 systemctl enable dropbear 2>/dev/null
 systemctl restart dropbear 2>/dev/null
 

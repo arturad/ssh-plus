@@ -10,7 +10,7 @@ apt update -y
 apt install -y \
 curl \
 wget \
-sudo \
+sudo \8
 cron \
 net-tools \
 lsb-release \
@@ -197,7 +197,7 @@ systemctl is-active --quiet dropbear && DROPBEAR_STATUS="\033[1;32mONLINE\033[0m
 
 systemctl is-active --quiet squid && SQUID_STATUS="\033[1;32mONLINE\033[0m" || SQUID_STATUS="\033[1;31mOFFLINE\033[0m"
 
-systemctl is-active --quiet ws-server && WS_STATUS="\033[1;32mONLINE\033[0m" || WS_STATUS="\033[1;31mOFFLINE\033[0m"
+ss -lntp | grep -q ':80 ' && WS_STATUS="\033[1;32mONLINE\033[0m" || WS_STATUS="\033[1;31mOFFLINE\033[0m"
 
 systemctl is-active --quiet stunnel4 && SSL_STATUS="\033[1;32mONLINE\033[0m" || SSL_STATUS="\033[1;31mOFFLINE\033[0m"
 systemctl is-active --quiet apache2 && APACHE_STATUS="\033[1;32mONLINE\033[0m" || APACHE_STATUS="\033[1;31mOFFLINE\033[0m"

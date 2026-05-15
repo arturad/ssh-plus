@@ -22,6 +22,7 @@ stunnel4 \
 screen \
 python3 \
 python3-pip \
+badvpn \
 apache2
 
 mkdir -p /etc/arturo
@@ -37,8 +38,7 @@ rm -f /usr/bin/speedtest
 curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
 
 apt install -y speedtest
-wget -O /usr/bin/badvpn-udpgw https://github.com/ambrop72/badvpn/releases/download/1.999.130/badvpn-udpgw
-chmod +x /usr/bin/badvpn-udpgw
+apt install -y badvpn
 systemctl enable dropbear 2>/dev/null
 systemctl restart dropbear 2>/dev/null
 

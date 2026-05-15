@@ -6,14 +6,43 @@ BLUE='\033[1;34m'
 NC='\033[0m'
 
 apt update -y
-apt install -y curl wget sudo cron net-tools lsb-release dropbear squid neofetch vnstat
+
+apt install -y \
+curl \
+wget \
+sudo \
+cron \
+net-tools \
+lsb-release \
+dropbear \
+squid \
+neofetch \
+vnstat \
+stunnel4 \
+screen \
+python3 \
+python3-pip \
+apache2
 
 mkdir -p /etc/arturo
 touch /etc/arturo/limitai.db
+
 systemctl enable vnstat 2>/dev/null
 systemctl restart vnstat 2>/dev/null
+
 curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
 apt install -y speedtest
+
+systemctl enable dropbear 2>/dev/null
+systemctl restart dropbear 2>/dev/null
+
+systemctl enable squid 2>/dev/null
+systemctl restart squid 2>/dev/null
+
+sed -i 's/Listen 80/Listen 8888/g' /etc/apache2/ports.conf
+systemctl enable apache2 2>/dev/null
+systemctl restart apache2 2>/dev/null
+
 cat > /usr/local/bin/menu << 'EOF'
 #!/bin/bash
 

@@ -27,29 +27,82 @@ python3 \
 python3-pip \
 apache2
 cat > /usr/local/bin/ws-server.py << 'PYEOF'
-import socket, threading, base64, hashlib
+import socket
+import threading
+import base64
+import hashlib
+import struct
 
 LISTEN_HOST = "0.0.0.0"
 LISTEN_PORT = 80
 TARGET_HOST = "127.0.0.1"
 TARGET_PORT = 22
 
-def pipe(src, dst):
+def recv_ws(sock):
+    h = sock.recv(2)
+    if len(h) < 2:
+        return b""
+    length = h[1] & 127
+
+    if length == 126:
+        length = struct.unpack(">H", sock.recv(2))[0]
+    elif length == 127:
+        length = struct.unpack(">Q", sock.recv(8))[0]
+
+    mask = sock.recv(4)
+    data = sock.recv(length)
+
+    return bytes(data[i] ^ mask[i % 4] for i in range(len(data)))
+
+def send_ws(sock, data):
+    if len(data) < 126:
+        header = bytes([0x82, len(data)])
+    elif len(data) < 65536:
+        header = bytes([0x82, 126]) + struct.pack(">H", len(data))
+    else:
+        header = bytes([0x82, 127]) + struct.pack(">Q", len(data))
+
+    sock.sendall(header + data)
+
+def client_to_target(client, target):
     try:
         while True:
-            data = src.recv(4096)
+            data = recv_ws(client)
             if not data:
                 break
-            dst.sendall(data)
+            target.sendall(data)
     except:
         pass
     finally:
-        src.close()
-        dst.close()
+        try: client.close()
+        except: pass
+        try: target.close()
+        except: pass
+
+def target_to_client(target, client):
+    try:
+        while True:
+            data = target.recv(4096)
+            if not data:
+                break
+            send_ws(client, data)
+    except:
+        pass
+    finally:
+        try: client.close()
+        except: pass
+        try: target.close()
+        except: pass
 
 def handle(client):
     try:
         request = client.recv(4096).decode(errors="ignore")
+
+        if "Upgrade: websocket" not in request and "upgrade: websocket" not in request:
+            client.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nWebSocket SSH Server OK\n")
+            client.close()
+            return
+
         key = ""
         for line in request.split("\r\n"):
             if line.lower().startswith("sec-websocket-key:"):
@@ -74,16 +127,17 @@ def handle(client):
 
         target = socket.create_connection((TARGET_HOST, TARGET_PORT))
 
-        threading.Thread(target=pipe, args=(client, target), daemon=True).start()
-        pipe(target, client)
+        threading.Thread(target=client_to_target, args=(client, target), daemon=True).start()
+        threading.Thread(target=target_to_client, args=(target, client), daemon=True).start()
 
     except:
-        client.close()
+        try: client.close()
+        except: pass
 
-server = socket.socket()
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.bind((LISTEN_HOST, LISTEN_PORT))
-server.listen(100)
+server.listen(200)
 
 while True:
     client, addr = server.accept()

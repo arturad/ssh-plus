@@ -1,7 +1,7 @@
 #!/bin/bash
 
 GREEN='\033[0;32m'
-RED='\033[0;31m'8
+RED='\033[0;31m'89
 BLUE='\033[1;34m'
 NC='\033[0m'
 
@@ -37,7 +37,8 @@ rm -f /usr/bin/speedtest
 curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
 
 apt install -y speedtest
-
+wget -O /usr/bin/badvpn-udpgw https://github.com/ambrop72/badvpn/releases/download/1.999.130/badvpn-udpgw
+chmod +x /usr/bin/badvpn-udpgw
 systemctl enable dropbear 2>/dev/null
 systemctl restart dropbear 2>/dev/null
 

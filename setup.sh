@@ -194,7 +194,7 @@ echo -e "\033[1;34m=========== SERVICE STATUS ===========\033[0m"
 systemctl is-active --quiet ssh && SSH_STATUS="\033[1;32mONLINE\033[0m" || SSH_STATUS="\033[1;31mOFFLINE\033[0m"
 systemctl is-active --quiet dropbear && DROPBEAR_STATUS="\033[1;32mONLINE\033[0m" || DROPBEAR_STATUS="\033[1;31mOFFLINE\033[0m"
 systemctl is-active --quiet squid && SQUID_STATUS="\033[1;32mONLINE\033[0m" || SQUID_STATUS="\033[1;31mOFFLINE\033[0m"
-systemctl is-active --quiet ws-server.service && WS_STATUS="\033[1;32mONLINE\033[0m" || WS_STATUS="\033[1;31mOFFLINE\033[0m"
+pgrep -f "ws-server.py" >/dev/null && WS_STATUS="\033[1;32mONLINE\033[0m" || WS_STATUS="\033[1;31mOFFLINE\033[0m"
 
 systemctl is-active --quiet stunnel4 && SSL_STATUS="\033[1;32mONLINE\033[0m" || SSL_STATUS="\033[1;31mOFFLINE\033[0m"
 systemctl is-active --quiet apache2 && APACHE_STATUS="\033[1;32mONLINE\033[0m" || APACHE_STATUS="\033[1;31mOFFLINE\033[0m"

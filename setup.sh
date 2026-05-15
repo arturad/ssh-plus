@@ -207,7 +207,7 @@ pgrep badvpn-udpgw >/dev/null && BADVPN_STATUS="\033[1;32mONLINE\033[0m" || BADV
 echo -e "SSH         : 22    $SSH_STATUS"
 echo -e "DROPBEAR    : 110   $DROPBEAR_STATUS"
 echo -e "SQUID       : 8080  $SQUID_STATUS"
-echo -e "WEBSOCKET   : 80   $WS_STATUS"
+echo -e "WEBSOCKET   : 80    $WS_STATUS"
 echo -e "SSL         : 443   $SSL_STATUS"
 echo -e "APACHE2     : 8888  $APACHE_STATUS"
 echo -e "BADVPN      : 7300  $BADVPN_STATUS"

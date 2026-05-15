@@ -1,7 +1,7 @@
 #!/bin/bash
 
 GREEN='\033[0;32m'
-RED='\033[0;31m'
+RED='\033[0;31m'8
 BLUE='\033[1;34m'
 NC='\033[0m'
 
@@ -30,7 +30,9 @@ touch /etc/arturo/limitai.db
 systemctl enable vnstat 2>/dev/null
 systemctl restart vnstat 2>/dev/null
 
-apt remove -y speedtest-cli 2>/dev/null
+apt purge -y speedtest-cli 2>/dev/null
+dpkg -r --force-all speedtest-cli 2>/dev/null
+rm -f /usr/bin/speedtest
 
 curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
 

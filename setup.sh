@@ -30,7 +30,10 @@ touch /etc/arturo/limitai.db
 systemctl enable vnstat 2>/dev/null
 systemctl restart vnstat 2>/dev/null
 
+apt remove -y speedtest-cli 2>/dev/null
+
 curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
+
 apt install -y speedtest
 
 systemctl enable dropbear 2>/dev/null

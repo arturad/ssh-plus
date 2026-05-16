@@ -367,74 +367,64 @@ esac
 read -p "Spausk ENTER..." pause
 menu
 ;;
-15|15)
+15)
 clear
 if pgrep -f "badvpn-udpgw" >/dev/null; then
-    BADVPN_STATUS="IJUNGTAS"
+BADVPN_STATUS="IJUNGTAS"
 else
-    BADVPN_STATUS="ISJUNGTAS"
+BADVPN_STATUS="ISJUNGTAS"
 fi
-echo "======================"
+
+echo "====================="
 echo " BADVPN [$BADVPN_STATUS]"
-echo "======================"
+echo "====================="
 echo ""
 echo "[1] Ijungti BADVPN"
 echo "[2] Isjungti BADVPN"
 echo ""
 read -p "Pasirinkimas: " bad
+
 case $bad in
 1)
 pkill -f badvpn-udpgw 2>/dev/null
 screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
-sleep 1
-if pgrep -f "badvpn-udpgw" >/dev/null; then
-    echo ""
-    echo "BADVPN paleistas! Statusas: IJUNGTAS"
-else
-    echo ""
-    echo "BADVPN nepasileido!"
-fi
+echo "BADVPN paleistas!"
 ;;
 2)
 pkill -f badvpn-udpgw 2>/dev/null
-sleep 1
-if pgrep -f "badvpn-udpgw" >/dev/null; then
-    echo ""
-    echo "BADVPN vis dar veikia!"
-else
-    echo ""
-    echo "BADVPN sustabdytas! Statusas: ISJUNGTAS"
-fi
+echo "BADVPN sustabdytas!"
 ;;
 *)
 echo "Neteisingas pasirinkimas!"
 ;;
 esac
+
 read -p "Spausk ENTER..." pause
 menu
 ;;
+
 16|16)
 clear
 echo "Telegram botas bus pridėtas vėliau."
 read -p "Spausk ENTER..." pause
 menu
 ;;
+
 17)
 clear
 mkdir -p /etc/arturo
-
 nano /etc/arturo/banner
-
 chmod +x /etc/arturo/banner
-
 echo ""
 echo "Banner išsaugotas!"
 read -p "Spausk ENTER..." pause
 menu
 ;;
+
 0|00)
 exit
 ;;
+
 *)
 echo "Neteisingas pasirinkimas!"
 sleep 2

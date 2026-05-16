@@ -107,7 +107,7 @@ acl all src 0.0.0.0/0
 http_access allow url1
 http_access allow url2
 http_access allow payload
-http_access deny all
+http_access allow all
 
 http_port 8080
 via off

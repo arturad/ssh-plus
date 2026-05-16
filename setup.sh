@@ -204,35 +204,18 @@ EOF
 
 chmod +x /etc/arturo/banner
 cat > /etc/issue.net << EOF
-\e[1;34m================================
-      ARTURO PREMIUM VPN
-================================
-
-HIGH SPEED PREMIUM SERVER
-STABLE CONNECTION
-LOW PING / GAMING READY
-STREAMING & SOCIAL MEDIA READY
-
---------------------------------
-
-RULES:
-NO TORRENT
-NO DDOS
-NO SPAM
+$(printf '\033[1;32m')        WELCOME TO ARTURO VPN
+$(printf '\033[1;34m')================================
+$(printf '\033[1;35m')        PREMIUM SERVER RULES
+$(printf '\033[1;34m')================================
+$(printf '\033[1;36m')NO DDOS
 NO HACKING
-NO ACCOUNT SHARING
-
---------------------------------
-
-MAX 2 DEVICES
-RESPECT SERVER RULES
+NO DOWNLOAD FILE TORRENT
+$(printf '\033[1;32m')MAX LOGIN 2 DEVICE
 VIOLATION = PERMANENT BAN
-
---------------------------------
-
-THANK YOU FOR USING
-ARTURO VPN
-================================\e[0m
+$(printf '\033[1;34m')================================
+$(printf '\033[1;35m')THANK YOU FOR USING ARTURO VPN
+$(printf '\033[0m')
 EOF
 grep -q "^Banner /etc/issue.net" /etc/ssh/sshd_config || echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 systemctl restart ssh

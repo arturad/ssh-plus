@@ -335,25 +335,20 @@ menu
 3|03)
 clear
 
-echo "========================"
-echo " VPN VARTOTOJAI"
-echo "========================"
+echo "========== VARTOTOJŲ INFORMACIJA =========="
 echo ""
 
-if [ -s /etc/arturo/limitai.db ]; then
-    while read user limit; do
-        exp=$(chage -l "$user" 2>/dev/null | grep "Account expires" | cut -d: -f2 | xargs)
+cut -d: -f1 /etc/passwd | grep -E '^[a-zA-Z0-9]' | while read user
+do
+exp=$(chage -l $user 2>/dev/null | grep "Account expires" | cut -d: -f2)
+lim=$(grep "^$user " /root/limit.db 2>/dev/null | awk '{print $2}')
 
-        echo "Vartotojas : $user"
-        echo "Limitas    : $limit"
-        echo "Galioja iki: $exp"
-        echo "------------------------"
-    done < /etc/arturo/limitai.db
-else
-    echo "Vartotojų nėra."
-fi
+echo "Vartotojas : $user"
+echo "Galioja iki: $exp"
+echo "Limitas : ${lim:-Neribotas}"
+echo "-----------------------------------"
+done
 
-echo ""
 read -p "Spausk ENTER..." pause
 menu
 ;;

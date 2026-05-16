@@ -49,7 +49,7 @@ const server = net.createServer((socket) => {
         }
 
         // Štai čia buvo klaida: jungiamės ne prie 22 (SSH), o prie 8080 (Squid Proxy)!
-        ssh = net.connect(8080, '127.0.0.1', () => {
+        ssh = net.connect(22, '127.0.0.1', () => {
             socket.pipe(ssh);
             ssh.pipe(socket);
         });
@@ -75,31 +75,34 @@ rm -f /etc/nginx/sites-enabled/default
 apt install -y squid
 
 cat > /etc/squid/squid.conf << 'EOF'
+# Leidžiame localhost ir visus išorinius IP
+acl localhost src 127.0.0.1/32 ::1
 acl all src 0.0.0.0/0
-acl Safe_ports port 80
-acl Safe_ports port 443
-acl Safe_ports port 22
-acl Safe_ports port 110
-acl Safe_ports port 8080
-acl Safe_ports port 8888
-acl Safe_ports port 6443
-acl Safe_ports port 7300
+
+# Saugūs portai tuneliavimui
+acl Safe_ports port 80          # HTTP
+acl Safe_ports port 443         # HTTPS
+acl Safe_ports port 22          # SSH
+acl Safe_ports port 110         # Dropbear
+acl Safe_ports port 8080        # Squid
 acl CONNECT method CONNECT
 
+# TAISYKLĖS - Leidžiame prieigą
+http_access allow localhost
 http_access allow Safe_ports
 http_access allow CONNECT
 http_access allow all
 
+# Portas
 http_port 8080
 
+# Anonimiškumas
 visible_hostname VPSMANAGER
 via off
 forwarded_for off
 pipeline_prefetch off
-
-request_header_access Upgrade allow all
-request_header_access Connection allow all
 EOF
+
 
 
 systemctl stop squid 2>/dev/null

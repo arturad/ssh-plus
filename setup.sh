@@ -94,7 +94,7 @@ http_access allow CONNECT
 http_access allow all
 
 # Portas
-http_port 8080
+http_port 0.0.0.0:8080
 
 # Anonimiškumas
 visible_hostname VPSMANAGER

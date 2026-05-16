@@ -462,11 +462,90 @@ read -p "Spausk ENTER..." pause
 menu
 ;;
 9|09)
+while true; do
 clear
+
+echo "================================="
+echo " Telegram Bot (AutoBackup)"
+echo "================================="
+echo ""
+echo " VPS Atsarginių kopijų valdymas"
+echo ""
+echo " Automatinės atsarginės kopijos statusas: [Įjungta]"
+echo ""
+echo "[1] Nustatyti Telegram Bot"
+echo "[2] Automatinės atsarginės kopijos įjungimas/išjungimas"
+echo "[3] Kurti VPS atsarginę kopiją (Telegram)"
+echo "[4] Atkurti duomenis"
+echo "[5] Grįžti į pagrindinį meniu"
+echo ""
+read -p "Pasirinkite iš meniu [1 - 5]: " opc2
+
+case $opc2 in
+1)
+clear
+read -p "BOT TOKEN: " token
+read -p "CHAT ID: " chatid
+
+mkdir -p /etc/arturo
+
+cat > /etc/arturo/telegram.conf << EOF
+BOT_TOKEN="$token"
+CHAT_ID="$chatid"
+EOF
+
+echo ""
+echo "Telegram botas išsaugotas!"
+read -p "Spausk ENTER..."
+;;
+
+2)
+clear
+
+if [ -f /etc/arturo/autobackup ]; then
+rm -f /etc/arturo/autobackup
+echo "AutoBackup išjungtas!"
+else
+touch /etc/arturo/autobackup
+echo "AutoBackup įjungtas!"
+fi
+
+read -p "Spausk ENTER..."
+;;
+
+3)
+clear
+
 tar -czf /root/backup.tar.gz /etc/arturo
-echo "Backup sukurtas: /root/backup.tar.gz"
-read -p "Spausk ENTER..." pause
+
+source /etc/arturo/telegram.conf
+
+curl -F document=@/root/backup.tar.gz \
+"https://api.telegram.org/bot$BOT_TOKEN/sendDocument?chat_id=$CHAT_ID"
+
+echo ""
+echo "Backup išsiųstas į Telegram!"
+read -p "Spausk ENTER..."
+;;
+
+4)
+clear
+echo "Įkelkite backup failą į /root/"
+echo "Failo pavadinimas: backup.tar.gz"
+read -p "Spausk ENTER..."
+;;
+
+5)
 menu
+break
+;;
+
+*)
+echo "Neteisingas pasirinkimas!"
+sleep 2
+;;
+esac
+done
 ;;
 10|10)
 clear

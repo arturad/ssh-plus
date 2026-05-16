@@ -209,7 +209,7 @@ SSH_PORT=$(grep -i "^Port" /etc/ssh/sshd_config | head -1 | awk '{print $2}')
 [ -z "$SSH_PORT" ] && SSH_PORT="22"
 
 echo -e "\033[1;34m==================================================\033[0m"
-echo -e "\033[1;37;41m  SSHPLUS MANAGER ⇌   by @Rolka ✩ @Arturas  \033[0m"
+echo -e "\033[1;37;41m  SSHPLUS MANAGER ⇌   by @mekigis  \033[0m"
 echo -e "\033[1;34m==================================================\033[0m"
 
 echo ""

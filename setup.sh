@@ -102,13 +102,18 @@ apt install -y squid
 
 cat > /etc/squid/squid.conf << 'EOF'
 acl all src 0.0.0.0/0
-acl SSL_ports port 443
 acl Safe_ports port 80
 acl Safe_ports port 443
+acl Safe_ports port 22
+acl Safe_ports port 110
 acl Safe_ports port 8080
-acl Safe_ports port 3128
+acl Safe_ports port 8888
+acl Safe_ports port 6443
+acl Safe_ports port 7300
 acl CONNECT method CONNECT
 
+http_access allow Safe_ports
+http_access allow CONNECT
 http_access allow all
 
 http_port 8080
@@ -117,7 +122,11 @@ visible_hostname VPSMANAGER
 via off
 forwarded_for off
 pipeline_prefetch off
+
+request_header_access Upgrade allow all
+request_header_access Connection allow all
 EOF
+
 
 systemctl stop squid 2>/dev/null
 systemctl disable squid 2>/dev/null

@@ -199,19 +199,19 @@ cat > /etc/arturo/banner << 'EOF'
 EOF
 
 {
-printf '%b\n' $'\e[1;32m        WELCOME TO ARTURO VPN'
-printf '%b\n' $'\e[1;34m================================'
-printf '%b\n' $'\e[1;35m        PREMIUM SERVER RULES'
-printf '%b\n' $'\e[1;34m================================'
-printf '%b\n' $'\e[1;36mNO DDOS'
-printf '%b\n' $'\e[1;36mNO HACKING'
-printf '%b\n' $'\e[1;36mNO DOWNLOAD FILE TORRENT'
-printf '%b\n' $'\e[1;32mMAX LOGIN 2 DEVICE'
-printf '%b\n' $'\e[1;32mVIOLATION = PERMANENT BAN'
-printf '%b\n' $'\e[1;34m================================'
-printf '%b\n' $'\e[1;35mTHANK YOU FOR USING ARTURO VPN'
-printf '%b\n' $'\e[0m'
+echo "         WELCOME TO ARTURO VPN"
+echo "========================================="
+echo "           PREMIUM SERVER RULES"
+echo "========================================="
+echo " NO DDOS"
+echo " NO HACKING"
+echo " NO DOWNLOAD FILE TORRENT"
+echo " MAX LOGIN 2 DEVICE"
+echo " VIOLATION = PERMANENT BAN"
+echo "========================================="
+echo "     THANK YOU FOR USING ARTURO VPN"
 } > /etc/issue.net
+
 
 grep -q "^Banner /etc/issue.net" /etc/ssh/sshd_config || echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 systemctl restart ssh

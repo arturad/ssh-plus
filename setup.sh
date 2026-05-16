@@ -101,7 +101,7 @@ rm -f /etc/nginx/sites-enabled/default
 cat > /etc/squid/squid.conf << 'EOF'
 acl url1 dstdomain 127.0.0.1
 acl url2 dstdomain localhost
-acl payload url_regex -i "/etc/squid/payload.txt"
+acl payload url_regex "/etc/squid/payload.txt"
 acl all src 0.0.0.0/0
 
 http_access allow url1

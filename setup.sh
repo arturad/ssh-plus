@@ -195,22 +195,26 @@ systemctl enable apache2 2>/dev/null
 systemctl restart apache2 2>/dev/null
 mkdir -p /etc/arturo
 
-cat > /etc/arturo/banner << 'EOF'
-EOF
+mkdir -p /etc/arturo
 
-{
-echo "         WELCOME TO ARTURO VPN"
-echo "========================================="
-echo "           PREMIUM SERVER RULES"
-echo "========================================="
-echo " NO DDOS"
-echo " NO HACKING"
-echo " NO DOWNLOAD FILE TORRENT"
-echo " MAX LOGIN 2 DEVICE"
-echo " VIOLATION = PERMANENT BAN"
-echo "========================================="
-echo "     THANK YOU FOR USING ARTURO VPN"
-} > /etc/issue.net
+# Sukuriame švarų /etc/issue.net su HTML formatavimu
+echo "<font color='#33b5e5'>" > /etc/issue.net
+echo "=========================================<br/>" >> /etc/issue.net
+echo "        WELCOME TO ARTURO VPN<br/>" >> /etc/issue.net
+echo "=========================================<br/>" >> /etc/issue.net
+echo "         PREMIUM SERVER RULES<br/>" >> /etc/issue.net
+echo "=========================================<br/>" >> /etc/issue.net
+echo "- NO DDOS<br/>" >> /etc/issue.net
+echo "- NO HACKING<br/>" >> /etc/issue.net
+echo "- NO DOWNLOAD FILE TORRENT<br/>" >> /etc/issue.net
+echo "- MAX LOGIN 2 DEVICE<br/>" >> /etc/issue.net
+echo "- VIOLATION = PERMANENT BAN<br/>" >> /etc/issue.net
+echo "=========================================<br/>" >> /etc/issue.net
+echo "THANK YOU FOR USING ARTURO VPN<br/>" >> /etc/issue.net
+echo "=========================================<br/>" >> /etc/issue.net
+echo "</font>" >> /etc/issue.net
+
+
 
 
 grep -q "^Banner /etc/issue.net" /etc/ssh/sshd_config || echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config

@@ -35,29 +35,32 @@ cat > /etc/arturo/sh.js << 'EOF'
 const net = require('net');
 
 const server = net.createServer((socket) => {
-
     let ssh = null;
 
-    socket.once('data', () => {
+    socket.once('data', (buffer) => {
+        const data = buffer.toString();
+
+        if (data.includes('Upgrade: websocket')) {
+            socket.write(
+                "HTTP/1.1 101 Switching Protocols\r\n" +
+                "Upgrade: websocket\r\n" +
+                "Connection: Upgrade\r\n\r\n"
+            );
+        }
 
         ssh = net.connect(22, '127.0.0.1', () => {
-
             socket.pipe(ssh);
             ssh.pipe(socket);
-
         });
 
         ssh.setKeepAlive(true);
         ssh.setNoDelay(true);
-
         socket.setKeepAlive(true);
         socket.setNoDelay(true);
 
         ssh.on('error', () => socket.destroy());
         socket.on('error', () => ssh.destroy());
-
     });
-
 });
 
 server.listen(8088, () => {

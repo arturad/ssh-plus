@@ -193,12 +193,21 @@ systemctl restart squid 2>/dev/null
 sed -i 's/Listen 80/Listen 8888/g' /etc/apache2/ports.conf
 systemctl enable apache2 2>/dev/null
 systemctl restart apache2 2>/dev/null
+mkdir -p /etc/arturo
 
+cat > /etc/arturo/banner << 'EOF'
+echo "================================="
+echo "      ARTURO VPN SISTEMA"
+echo "================================="
+echo ""
+EOF
+
+chmod +x /etc/arturo/banner
 cat > /usr/local/bin/menu << 'EOF'
 #!/bin/bash
 
 clear
-
+[ -f /etc/arturo/banner ] && bash /etc/arturo/banner
 OS=$(lsb_release -ds | tr -d '"')
 RAM_TOTAL=$(free -h | awk '/Mem:/ {print $2}')
 RAM_USED=$(free | awk '/Mem:/ {printf("%.1f"), $3/$2 * 100}')

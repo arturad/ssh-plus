@@ -36,10 +36,6 @@ const net = require('net');
 
 const server = net.createServer((socket) => {
 
-    socket.write(
-        "HTTP/1.1 101 Switching Protocols\r\n\r\n"
-    );
-
     let ssh = null;
 
     socket.once('data', () => {

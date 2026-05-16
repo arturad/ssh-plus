@@ -487,8 +487,21 @@ reboot
 ;;
 12|12)
 clear
-echo "@reboot root menu" > /etc/cron.d/menu
-echo "Auto paleidimas įjungtas!"
+
+if grep -q "menu" /root/.bashrc; then
+sed -i '/menu/d' /root/.bashrc
+
+echo ""
+echo "Auto MENU išjungtas!"
+
+else
+echo 'clear; menu' >> /root/.bashrc
+
+echo ""
+echo "Auto MENU įjungtas!"
+
+fi
+
 read -p "Spausk ENTER..." pause
 menu
 ;;

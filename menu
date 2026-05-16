@@ -418,7 +418,7 @@ clear
 echo "Telegram botas bus pridėtas vėliau."
 read -p "Spausk ENTER..." pause
 menu
-17|17)
+17)
 clear
 mkdir -p /etc/arturo
 

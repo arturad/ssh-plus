@@ -168,7 +168,7 @@ socket = r:TCP_NODELAY=1
 
 [ssh-ssl]
 accept = 443
-connect = 127.0.0.1:22
+connect = 127.0.0.1:8080
 
 [ws-ssl]
 accept = 6443

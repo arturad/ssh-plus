@@ -97,10 +97,10 @@ server {
 EOF
 
 rm -f /etc/nginx/sites-enabled/default
-apt install -y squid3
-mkdir -p /etc/squid3
+apt install -y squid
+mkdir -p /etc/squid
 
-cat > /etc/squid3/squid.conf << 'EOF'
+cat > /etc/squid/squid.conf << 'EOF'
 http_port 3128
 
 acl all src 0.0.0.0/0
@@ -126,10 +126,10 @@ request_header_access Proxy-Authenticate allow all
 visible_hostname Arturo
 EOF
 
-systemctl stop squid 2>/dev/null
-systemctl disable squid 2>/dev/null
-systemctl enable squid3 2>/dev/null
-systemctl restart squid3 2>/dev/null
+systemctl stop squid3 2>/dev/null
+systemctl disable squid3 2>/dev/null
+systemctl enable squid 2>/dev/null
+systemctl restart squid 2>/dev/null
 
 sed -i 's/^Listen .*/Listen 8888/g' /etc/apache2/ports.conf
 sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8888>/g' /etc/apache2/sites-enabled/000-default.conf

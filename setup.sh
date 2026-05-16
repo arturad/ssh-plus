@@ -99,27 +99,29 @@ EOF
 
 rm -f /etc/nginx/sites-enabled/default
 cat > /etc/squid/squid.conf << 'EOF'
+acl url1 dstdomain -i 127.0.0.1
+acl url2 dstdomain -i localhost
+acl payload url_regex -i "/etc/squid/payload.txt"
+acl all src 0.0.0.0/0
+
+http_access allow url1
+http_access allow url2
+http_access allow payload
+http_access deny all
+
 http_port 8080
-
-acl allsrc src all
-acl SSL_ports port 443 563 80 8080 8088 6443
-acl Safe_ports port 80 443 563 8080 8088 6443 1024-65535
-acl CONNECT method CONNECT
-
-http_access allow CONNECT SSL_ports
-http_access allow allsrc
-http_access allow all
-
 via off
-forwarded_for delete
-request_header_access X-Forwarded-For deny all
-request_header_access Via deny all
-request_header_access Cache-Control deny all
-
+forwarded_for off
 visible_hostname Arturo
-cache deny all
-access_log /var/log/squid/access.log
-cache_log /var/log/squid/cache.log
+EOF
+
+cat > /etc/squid/payload.txt << 'EOF'
+mms
+http
+CONNECT
+Host:
+Upgrade:
+websocket
 EOF
 
 systemctl enable squid

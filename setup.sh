@@ -86,7 +86,7 @@ server {
     listen 80 default_server;
 
     location / {
-        proxy_pass http://127.0.0.1:80;
+        proxy_pass http://127.0.0.1:8088;
         proxy_http_version 1.1;
 
         proxy_set_header Upgrade $http_upgrade;
@@ -101,7 +101,7 @@ apt install -y squid
 mkdir -p /etc/squid
 
 cat > /etc/squid/squid.conf << 'EOF'
-http_port 3128
+http_port 8080
 
 acl all src 0.0.0.0/0
 http_access allow all

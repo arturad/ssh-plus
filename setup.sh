@@ -133,10 +133,17 @@ openssl req -new -x509 -days 3650 -nodes \
 cat > /etc/stunnel/stunnel.conf << 'EOFSSL'
 cert = /etc/stunnel/stunnel.pem
 client = no
+socket = a:SO_REUSEADDR=1
+socket = l:TCP_NODELAY=1
+socket = r:TCP_NODELAY=1
 
 [ssh-ssl]
 accept = 443
-connect = 127.0.0.1:443
+connect = 127.0.0.1:22
+
+[ws-ssl]
+accept = 6443
+connect = 127.0.0.1:80
 EOFSSL
 
 echo 'ENABLED=1' > /etc/default/stunnel4

@@ -475,7 +475,6 @@ echo "Servisai perkrauti!"
 read -p "Spausk ENTER..." pause
 menu
 ;;
-;;
 11|11)
 reboot
 ;;

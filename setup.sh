@@ -204,33 +204,35 @@ EOF
 
 chmod +x /etc/arturo/banner
 cat > /etc/issue.net << 'EOF'
-\033[1;36m====================================\033[0m
-\033[1;32m        ARTURO PREMIUM VPN\033[0m
-\033[1;36m====================================\033[0m
+====================================
 
-\033[1;33m⚡ HIGH SPEED PREMIUM SERVER\033[0m
-\033[1;33m⚡ STABLE CONNECTION\033[0m
-\033[1;33m⚡ LOW PING / GAMING READY\033[0m
-\033[1;33m⚡ STREAMING & SOCIAL MEDIA READY\033[0m
+        ARTURO PREMIUM VPN
 
-\033[1;35m------------------------------------\033[0m
+====================================
 
-\033[1;31m✘ NO TORRENT\033[0m
-\033[1;31m✘ NO DDOS\033[0m
-\033[1;31m✘ NO SPAM\033[0m
-\033[1;31m✘ NO HACKING\033[0m
-\033[1;31m✘ NO ACCOUNT SHARING\033[0m
+⚡ HIGH SPEED PREMIUM SERVER
+⚡ STABLE CONNECTION
+⚡ LOW PING / GAMING READY
+⚡ STREAMING & SOCIAL MEDIA READY
 
-\033[1;35m------------------------------------\033[0m
+------------------------------------
 
-\033[1;32m✔ MAX 2 DEVICES\033[0m
-\033[1;32m✔ RESPECT SERVER RULES\033[0m
-\033[1;32m✔ VIOLATION = PERMANENT BAN\033[0m
+✘ NO TORRENT
+✘ NO DDOS
+✘ NO SPAM
+✘ NO HACKING
+✘ NO ACCOUNT SHARING
 
-\033[1;36m====================================\033[0m
+------------------------------------
 
-\033[1;33m        THANK YOU FOR USING\033[0m
-\033[1;32m             ARTURO VPN\033[0m
+✔ MAX 2 DEVICES
+✔ RESPECT SERVER RULES
+✔ VIOLATION = PERMANENT BAN
+
+====================================
+
+      THANK YOU FOR USING
+           ARTURO VPN
 EOF
 echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 systemctl restart ssh

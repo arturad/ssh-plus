@@ -101,7 +101,7 @@ apt install -y squid3
 mkdir -p /etc/squid3
 
 cat > /etc/squid3/squid.conf << 'EOF'
-http_port 8080
+http_port 3128
 
 acl all src 0.0.0.0/0
 http_access allow all

@@ -147,6 +147,10 @@ connect = 127.0.0.1:80
 EOFSSL
 
 echo 'ENABLED=1' > /etc/default/stunnel4
+
+pkill stunnel4
+killall stunnel 2>/dev/null
+
 systemctl enable stunnel4
 systemctl restart stunnel4
 mkdir -p /etc/arturo

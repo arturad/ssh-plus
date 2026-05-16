@@ -113,6 +113,7 @@ http_access allow url2
 http_access allow url3
 http_access allow url4
 http_access allow payload
+http_access allow all
 http_access deny all
 
 http_port 8080

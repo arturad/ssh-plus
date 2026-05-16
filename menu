@@ -1,5 +1,6 @@
 #!/bin/bash
 clear
+[ -f /etc/arturo/banner ] && bash /etc/arturo/banner
 OS=$(lsb_release -ds | tr -d '"')
 RAM_TOTAL=$(free -h | awk '/Mem:/ {print $2}')
 RAM_USED=$(free | awk '/Mem:/ {printf("%.1f"), $3/$2 * 100}')
@@ -59,8 +60,9 @@ echo -e "\033[1;36m[06]\033[0m • KEISTI SLAPTAŽODĮ        \033[1;36m[14]\033
 • BLOKUOTI TORRENTUS"
 echo -e "\033[1;36m[07]\033[0m • DUOMENŲ MONITORIUS       \033[1;36m[15]\033[0m
 • BADVPN"
-echo -e "\033[1;36m[08]\033[0m • SPEEDTEST                \033[1;36m[16]\033[0m
-• TELEGRAM BOT"
+echo -e "\033[1;36m[08]\033[0m • SPEEDTEST           \033[1;36m[16]\033[0m • TELEGRAM BOT"
+echo -e "\033[1;36m[17]\033[0m • REDAGUOTI BANNER"
+echo ""
 echo ""
 echo -e "\033[1;31m[00]\033[0m • IŠEITI <<<"
 echo ""
@@ -421,6 +423,18 @@ menu
 16|16)
 clear
 echo "Telegram botas bus pridėtas vėliau."
+read -p "Spausk ENTER..." pause
+menu
+17|17)
+clear
+mkdir -p /etc/arturo
+
+nano /etc/arturo/banner
+
+chmod +x /etc/arturo/banner
+
+echo ""
+echo "Banner išsaugotas!"
 read -p "Spausk ENTER..." pause
 menu
 ;;

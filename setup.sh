@@ -123,12 +123,14 @@ systemctl enable nodews
 systemctl restart nodews
 systemctl restart nginx
 
+mkdir -p /etc/stunnel
+
 openssl req -new -x509 -days 3650 -nodes \
 -out /etc/stunnel/stunnel.pem \
 -keyout /etc/stunnel/stunnel.pem \
 -subj "/CN=localhost"
 
-cat > /etc/stunne1/stunnel.conf << 'EOFSSL'
+cat > /etc/stunnel/stunnel.conf << 'EOFSSL'
 cert = /etc/stunnel/stunnel.pem
 client = no
 

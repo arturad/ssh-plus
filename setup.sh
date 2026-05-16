@@ -128,7 +128,7 @@ openssl req -new -x509 -days 3650 -nodes \
 -keyout /etc/stunnel/stunnel.pem \
 -subj "/CN=localhost"
 
-cat > /etc/stunne4/stunnel.conf << 'EOFSSL'
+cat > /etc/stunne1/stunnel.conf << 'EOFSSL'
 cert = /etc/stunnel/stunnel.pem
 client = no
 
@@ -137,7 +137,7 @@ accept = 443
 connect = 127.0.0.1:80
 EOFSSL
 
-sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
+echo 'ENABLED=1' > /etc/default/stunnel4
 systemctl enable stunnel4
 systemctl restart stunnel4
 mkdir -p /etc/arturo

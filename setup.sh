@@ -458,13 +458,23 @@ menu
 ;;
 10|10)
 clear
-systemctl restart ssh
-systemctl restart dropbear
-systemctl restart squid
 
+echo "Perkraunami servisai..."
+
+systemctl restart ssh 2>/dev/null
+systemctl restart dropbear 2>/dev/null
+systemctl restart squid 2>/dev/null
+systemctl restart stunnel4 2>/dev/null
+systemctl restart nginx 2>/dev/null
+systemctl restart nodews 2>/dev/null
+systemctl restart apache2 2>/dev/null
+
+echo ""
 echo "Servisai perkrauti!"
+
 read -p "Spausk ENTER..." pause
 menu
+;;
 ;;
 11|11)
 reboot

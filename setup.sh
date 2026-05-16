@@ -284,6 +284,14 @@ read -p "Slaptažodis: " pass
 read -p "Dienų skaičius: " days
 read -p "Prisijungimų limitas: " limit
 
+if id "$user" >/dev/null 2>&1; then
+echo ""
+echo "Toks vartotojas jau egzistuoja!"
+read -p "Spausk ENTER..." pause
+menu
+exit
+fi
+
 useradd -e $(date -d "$days days" +"%Y-%m-%d") -M -s /bin/false $user
 echo "$user:$pass" | chpasswd
 

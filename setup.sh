@@ -203,38 +203,38 @@ echo ""
 EOF
 
 chmod +x /etc/arturo/banner
-cat > /etc/issue.net << 'EOF'
-====================================
+cat > /etc/issue.net << EOF
+\e[1;34m================================
+      ARTURO PREMIUM VPN
+================================
 
-        ARTURO PREMIUM VPN
+HIGH SPEED PREMIUM SERVER
+STABLE CONNECTION
+LOW PING / GAMING READY
+STREAMING & SOCIAL MEDIA READY
 
-====================================
+--------------------------------
 
-⚡ HIGH SPEED PREMIUM SERVER
-⚡ STABLE CONNECTION
-⚡ LOW PING / GAMING READY
-⚡ STREAMING & SOCIAL MEDIA READY
+RULES:
+NO TORRENT
+NO DDOS
+NO SPAM
+NO HACKING
+NO ACCOUNT SHARING
 
-------------------------------------
+--------------------------------
 
-✘ NO TORRENT
-✘ NO DDOS
-✘ NO SPAM
-✘ NO HACKING
-✘ NO ACCOUNT SHARING
+MAX 2 DEVICES
+RESPECT SERVER RULES
+VIOLATION = PERMANENT BAN
 
-------------------------------------
+--------------------------------
 
-✔ MAX 2 DEVICES
-✔ RESPECT SERVER RULES
-✔ VIOLATION = PERMANENT BAN
-
-====================================
-
-      THANK YOU FOR USING
-           ARTURO VPN
+THANK YOU FOR USING
+ARTURO VPN
+================================\e[0m
 EOF
-echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
+grep -q "^Banner /etc/issue.net" /etc/ssh/sshd_config || echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 systemctl restart ssh
 systemctl restart dropbear
 cat > /usr/local/bin/menu << 'EOF'

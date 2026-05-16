@@ -470,20 +470,15 @@ menu
 ;;
 10|10)
 clear
-
 echo "Perkraunami servisai..."
+echo ""
 
-systemctl restart ssh 2>/dev/null
-systemctl restart dropbear 2>/dev/null
-systemctl restart squid 2>/dev/null
-systemctl restart stunnel4 2>/dev/null
-systemctl restart nginx 2>/dev/null
-systemctl restart nodews 2>/dev/null
-systemctl restart apache2 2>/dev/null
+for s in ssh dropbear squid stunnel4 nginx nodews apache2; do
+    echo -n "$s ... "
+    systemctl restart $s 2>/dev/null && echo "OK" || echo "KLAIDA / NĖRA"
+done
 
 echo ""
-echo "Servisai perkrauti!"
-
 read -p "Spausk ENTER..." pause
 menu
 ;;

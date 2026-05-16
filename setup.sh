@@ -196,27 +196,23 @@ systemctl restart apache2 2>/dev/null
 mkdir -p /etc/arturo
 
 cat > /etc/arturo/banner << 'EOF'
-echo "================================="
-echo "      ARTURO VPN SISTEMA"
-echo "================================="
-echo ""
 EOF
 
-chmod +x /etc/arturo/banner
-cat > /etc/issue.net << EOF
-$(printf '\033[1;32m')        WELCOME TO ARTURO VPN
-$(printf '\033[1;34m')================================
-$(printf '\033[1;35m')        PREMIUM SERVER RULES
-$(printf '\033[1;34m')================================
-$(printf '\033[1;36m')NO DDOS
-NO HACKING
-NO DOWNLOAD FILE TORRENT
-$(printf '\033[1;32m')MAX LOGIN 2 DEVICE
-VIOLATION = PERMANENT BAN
-$(printf '\033[1;34m')================================
-$(printf '\033[1;35m')THANK YOU FOR USING ARTURO VPN
-$(printf '\033[0m')
-EOF
+{
+printf '%b\n' $'\e[1;32m        WELCOME TO ARTURO VPN'
+printf '%b\n' $'\e[1;34m================================'
+printf '%b\n' $'\e[1;35m        PREMIUM SERVER RULES'
+printf '%b\n' $'\e[1;34m================================'
+printf '%b\n' $'\e[1;36mNO DDOS'
+printf '%b\n' $'\e[1;36mNO HACKING'
+printf '%b\n' $'\e[1;36mNO DOWNLOAD FILE TORRENT'
+printf '%b\n' $'\e[1;32mMAX LOGIN 2 DEVICE'
+printf '%b\n' $'\e[1;32mVIOLATION = PERMANENT BAN'
+printf '%b\n' $'\e[1;34m================================'
+printf '%b\n' $'\e[1;35mTHANK YOU FOR USING ARTURO VPN'
+printf '%b\n' $'\e[0m'
+} > /etc/issue.net
+
 grep -q "^Banner /etc/issue.net" /etc/ssh/sshd_config || echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 systemctl restart ssh
 systemctl restart dropbear

@@ -48,7 +48,8 @@ const server = net.createServer((socket) => {
             );
         }
 
-        ssh = net.connect(22, '127.0.0.1', () => {
+        // Štai čia buvo klaida: jungiamės ne prie 22 (SSH), o prie 8080 (Squid Proxy)!
+        ssh = net.connect(8080, '127.0.0.1', () => {
             socket.pipe(ssh);
             ssh.pipe(socket);
         });
@@ -68,33 +69,6 @@ server.listen(8088, () => {
 });
 EOF
 
-cat > /etc/systemd/system/nodews.service << 'EOF'
-[Unit]
-Description=nodews bridge
-After=network.target
-
-[Service]
-ExecStart=/usr/bin/node /etc/arturo/sh.js
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-cat > /etc/nginx/conf.d/ws.conf << 'EOF'
-server {
-    listen 80 default_server;
-
-    location / {
-        proxy_pass http://127.0.0.1:8088;
-        proxy_http_version 1.1;
-
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "Upgrade";
-        proxy_set_header Host $host;
-    }
-}
-EOF
 
 rm -f /etc/nginx/sites-enabled/default
 

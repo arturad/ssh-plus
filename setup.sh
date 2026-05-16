@@ -29,9 +29,9 @@ python3-pip \
 nodejs \
 nginx
 
-mkdir -p /etc/rolka
+mkdir -p /etc/arturo
 
-cat > /etc/rolka/sh.js << 'EOF'
+cat > /etc/arturo/sh.js << 'EOF'
 const net = require('net');
 
 const server = net.createServer((socket) => {
@@ -75,7 +75,7 @@ Description=nodews bridge
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/node /etc/rolka/sh.js
+ExecStart=/usr/bin/node /etc/arturo/sh.js
 Restart=always
 
 [Install]
@@ -100,17 +100,34 @@ EOF
 rm -f /etc/nginx/sites-enabled/default
 cat > /etc/squid/squid.conf << 'EOF'
 http_port 8080
-acl all src all
+
+acl allsrc src all
+acl SSL_ports port 443 563 80 8080 8088 6443
+acl Safe_ports port 80 443 563 8080 8088 6443 1024-65535
+acl CONNECT method CONNECT
+
+http_access allow CONNECT SSL_ports
+http_access allow allsrc
 http_access allow all
+
+via off
+forwarded_for delete
+request_header_access X-Forwarded-For deny all
+request_header_access Via deny all
+request_header_access Cache-Control deny all
+
 visible_hostname Arturo
+cache deny all
+access_log /var/log/squid/access.log
+cache_log /var/log/squid/cache.log
 EOF
+
+systemctl enable squid
+systemctl restart squid
 
 sed -i 's/^Listen .*/Listen 8888/g' /etc/apache2/ports.conf
 sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8888>/g' /etc/apache2/sites-enabled/000-default.conf
 sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
-
-systemctl enable squid
-systemctl restart squid
 
 systemctl enable apache2
 systemctl restart apache2

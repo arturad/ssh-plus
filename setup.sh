@@ -97,39 +97,45 @@ server {
 EOF
 
 rm -f /etc/nginx/sites-enabled/default
-apt install -y squid
-mkdir -p /etc/squid
+apt install -y squid3
+mkdir -p /etc/squid3
 
-cat > /etc/squid/squid.conf << 'EOF'
-http_port 8080
-
+cat > /etc/squid3/squid.conf << 'EOF'
+acl url1 dstdomain -i 127.0.0.1
+acl url2 dstdomain -i localhost
+acl url3 dstdomain -i 38.79.154.27
+acl url4 dstdomain -i /VPSMANAGER?
+acl payload url_regex -i "/etc/squid3/payload.txt"
 acl all src 0.0.0.0/0
-http_access allow all
 
-acl SSL_ports port 443
-acl Safe_ports port 80
-acl Safe_ports port 443
-acl CONNECT method CONNECT
+http_access allow url1
+http_access allow url2
+http_access allow url3
+http_access allow url4
+http_access allow payload
+http_access deny all
 
-http_access deny !Safe_ports
-http_access deny CONNECT !SSL_ports
-
+http_port 8080
+visible_hostname VPSMANAGER
 via off
 forwarded_for off
-
-request_header_access Allow allow all
-request_header_access Authorization allow all
-request_header_access WWW-Authenticate allow all
-request_header_access Proxy-Authorization allow all
-request_header_access Proxy-Authenticate allow all
-
-visible_hostname Arturo
+pipeline_prefetch off
 EOF
 
-systemctl stop squid3 2>/dev/null
-systemctl disable squid3 2>/dev/null
-systemctl enable squid 2>/dev/null
-systemctl restart squid 2>/dev/null
+cat > /etc/squid3/payload.txt << 'EOF'
+mms
+http
+CONNECT
+Host:
+Upgrade:
+websocket
+EOF
+
+
+systemctl stop squid 2>/dev/null
+systemctl disable squid 2>/dev/null
+systemctl enable squid3 2>/dev/null
+systemctl restart squid3 2>/dev/null
 
 sed -i 's/^Listen .*/Listen 8888/g' /etc/apache2/ports.conf
 sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8888>/g' /etc/apache2/sites-enabled/000-default.conf

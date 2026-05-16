@@ -103,10 +103,27 @@ mkdir -p /etc/squid3
 
 cat > /etc/squid3/squid.conf << 'EOF'
 http_port 8080
-acl all src all
+
+acl all src 0.0.0.0/0
 http_access allow all
+
+acl SSL_ports port 443
+acl Safe_ports port 80
+acl Safe_ports port 443
+acl CONNECT method CONNECT
+
+http_access deny !Safe_ports
+http_access deny CONNECT !SSL_ports
+
 via off
 forwarded_for off
+
+request_header_access Allow allow all
+request_header_access Authorization allow all
+request_header_access WWW-Authenticate allow all
+request_header_access Proxy-Authorization allow all
+request_header_access Proxy-Authenticate allow all
+
 visible_hostname Arturo
 EOF
 

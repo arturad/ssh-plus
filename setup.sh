@@ -128,7 +128,7 @@ openssl req -new -x509 -days 3650 -nodes \
 -keyout /etc/stunnel/stunnel.pem \
 -subj "/CN=localhost"
 
-cat > /etc/stunnel/stunnel.conf << 'EOFSSL'
+cat > /etc/stunne4/stunnel.conf << 'EOFSSL'
 cert = /etc/stunnel/stunnel.pem
 client = no
 

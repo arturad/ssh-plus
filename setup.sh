@@ -226,23 +226,8 @@ echo ""
 echo -e "\033[1;34m====================================\033[0m"
 
 online=$(who | wc -l)
-
 total=$(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd | wc -l)
-
 expired=0
-
-for user in $(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}'); do
-exp=$(chage -l $user 2>/dev/null | grep -i "expires" | head -1 | cut -d: -f2)
-
-if [[ "$exp" != " never" && "$exp" != "never" ]]; then
-exp_sec=$(date -d "$exp" +%s 2>/dev/null)
-now_sec=$(date +%s)
-
-if [[ $exp_sec -lt $now_sec ]]; then
-expired=$((expired+1))
-fi
-fi
-done
 
 echo -e "\033[1;33mPrisijungę:\033[0m $online"
 echo -e "\033[1;33mViso vartotojų:\033[0m $total"

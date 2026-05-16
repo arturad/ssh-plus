@@ -516,15 +516,38 @@ read -p "Spausk ENTER..."
 3)
 clear
 
-tar -czf /root/backup.tar.gz /etc/arturo
+IP=$(curl -s ipv4.icanhazip.com)
+DATE=$(date +%Y-%m-%d)
+
+BACKUP_NAME="backup-${IP}-${DATE}.tar.gz"
+
+tar -czf /root/$BACKUP_NAME \
+/etc/arturo \
+/root/*.db \
+/usr/local/bin/menu \
+/etc/passwd \
+/etc/shadow \
+/etc/group \
+/etc/gshadow \
+/etc/xray \
+/etc/stunnel \
+/etc/squid \
+/etc/dropbear \
+/etc/ssh \
+/etc/apache2 \
+/var/www/html \
+/etc/crontab \
+/root/cert \
+2>/dev/null
 
 source /etc/arturo/telegram.conf
 
-curl -F document=@/root/backup.tar.gz \
+curl -F document=@/root/$BACKUP_NAME \
 "https://api.telegram.org/bot$BOT_TOKEN/sendDocument?chat_id=$CHAT_ID"
 
 echo ""
 echo "Backup išsiųstas į Telegram!"
+echo "Failas: $BACKUP_NAME"
 read -p "Spausk ENTER..."
 ;;
 

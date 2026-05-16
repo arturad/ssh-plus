@@ -46,21 +46,14 @@ echo -e "SSL         : 443   $SSL_STATUS"
 echo -e "APACHE2     : 8888  $APACHE_STATUS"
 echo -e "BADVPN      : 7300  $BADVPN_STATUS"
 echo -e "\033[1;34m======================================\033[0m"
-echo -e "\033[1;36m[01]\033[0m • SUKURTI VARTOTOJĄ        \033[1;36m[09]\033[0m
-• BACKUP"
-echo -e "\033[1;36m[02]\033[0m • PAŠALINTI VARTOTOJĄ      \033[1;36m[10]\033[0m
-• PERKRAUTI SERVISUS"
-echo -e "\033[1;36m[03]\033[0m • PRISIJUNGĘ VARTOTOJAI    \033[1;36m[11]\033[0m
-• PERKRAUTI SISTEMĄ"
-echo -e "\033[1;36m[04]\033[0m • KEISTI DATĄ              \033[1;36m[12]\033[0m
-• AUTO PALEISTIS MENU"
-echo -e "\033[1;36m[05]\033[0m • KEISTI LIMITĄ            \033[1;36m[13]\033[0m
-• ATNAUJINTI SKRIPTĄ"
-echo -e "\033[1;36m[06]\033[0m • KEISTI SLAPTAŽODĮ        \033[1;36m[14]\033[0m
-• BLOKUOTI TORRENTUS"
-echo -e "\033[1;36m[07]\033[0m • DUOMENŲ MONITORIUS       \033[1;36m[15]\033[0m
-• BADVPN"
-echo -e "\033[1;36m[08]\033[0m • SPEEDTEST           \033[1;36m[16]\033[0m • TELEGRAM BOT"
+echo -e "\033[1;36m[01]\033[0m • SUKURTI VARTOTOJĄ        \033[1;36m[09]\033[0m • BACKUP"
+echo -e "\033[1;36m[02]\033[0m • PAŠALINTI VARTOTOJĄ      \033[1;36m[10]\033[0m • PERKRAUTI SERVISUS"
+echo -e "\033[1;36m[03]\033[0m • PRISIJUNGĘ VARTOTOJAI    \033[1;36m[11]\033[0m • PERKRAUTI SISTEMĄ"
+echo -e "\033[1;36m[04]\033[0m • KEISTI DATĄ              \033[1;36m[12]\033[0m • AUTO PALEISTIS MENU"
+echo -e "\033[1;36m[05]\033[0m • KEISTI LIMITĄ            \033[1;36m[13]\033[0m • ATNAUJINTI SKRIPTĄ"
+echo -e "\033[1;36m[06]\033[0m • KEISTI SLAPTAŽODĮ        \033[1;36m[14]\033[0m • BLOKUOTI TORRENTUS"
+echo -e "\033[1;36m[07]\033[0m • DUOMENŲ MONITORIUS       \033[1;36m[15]\033[0m • BADVPN"
+echo -e "\033[1;36m[08]\033[0m • SPEEDTEST                \033[1;36m[16]\033[0m • TELEGRAM BOT"
 echo -e "\033[1;36m[17]\033[0m • REDAGUOTI BANNER"
 echo ""
 echo ""

@@ -489,10 +489,10 @@ read -p "CHAT ID: " chatid
 
 mkdir -p /etc/arturo
 
-cat > /etc/arturo/telegram.conf << EOF
+cat > /etc/arturo/telegram.conf << EOTG
 BOT_TOKEN="$token"
 CHAT_ID="$chatid"
-EOF
+EOTG
 
 echo ""
 echo "Telegram botas išsaugotas!"

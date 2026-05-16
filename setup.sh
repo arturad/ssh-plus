@@ -136,7 +136,7 @@ client = no
 
 [ssh-ssl]
 accept = 443
-connect = 127.0.0.1:80
+connect = 127.0.0.1:443
 EOFSSL
 
 echo 'ENABLED=1' > /etc/default/stunnel4

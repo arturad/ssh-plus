@@ -607,10 +607,16 @@ fi
 read -p "Spausk ENTER..." pause
 menu
 ;;
-13|13)
+13)
 clear
+echo "Atnaujinamas skriptas..."
+
 wget -O /root/setup.sh https://raw.githubusercontent.com/arturad/ssh-plus/main/setup.sh
+
+chmod +x /root/setup.sh
+
 bash /root/setup.sh
+
 ;;
 14)
 clear

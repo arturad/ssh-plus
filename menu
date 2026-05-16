@@ -409,6 +409,10 @@ fi
 *)
 echo "Neteisingas pasirinkimas!"
 ;;
+esac
+read -p "Spausk ENTER..." pause
+menu
+;;
 16|16)
 clear
 echo "Telegram botas bus pridėtas vėliau."

@@ -98,34 +98,22 @@ server {
 EOF
 
 rm -f /etc/nginx/sites-enabled/default
-cat > /etc/squid/squid.conf << 'EOF'
-acl url1 dstdomain 127.0.0.1
-acl url2 dstdomain localhost
-acl payload url_regex "/etc/squid/payload.txt"
-acl all src 0.0.0.0/0
+apt install -y squid3
+mkdir -p /etc/squid3
 
-http_access allow url1
-http_access allow url2
-http_access allow payload
-http_access allow all
-
+cat > /etc/squid3/squid.conf << 'EOF'
 http_port 8080
+acl all src all
+http_access allow all
 via off
 forwarded_for off
 visible_hostname Arturo
 EOF
 
-cat > /etc/squid/payload.txt << 'EOF'
-mms
-http
-CONNECT
-Host:
-Upgrade:
-websocket
-EOF
-
-systemctl enable squid
-systemctl restart squid
+systemctl stop squid 2>/dev/null
+systemctl disable squid 2>/dev/null
+systemctl enable squid3 2>/dev/null
+systemctl restart squid3 2>/dev/null
 
 sed -i 's/^Listen .*/Listen 8888/g' /etc/apache2/ports.conf
 sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8888>/g' /etc/apache2/sites-enabled/000-default.conf

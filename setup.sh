@@ -32,14 +32,16 @@ nginx
 mkdir -p /etc/arturo
 
 # 1. Sukuriame Node.js WebSocket tiltą
-cat << 'EOF' > /etc/arturo/sh.js
 const net = require('net');
 
 const server = net.createServer((socket) => {
     socket.once('data', (buffer) => {
         const data = buffer.toString();
+
+        // Nukreipiam tiesiai į OpenSSH portą 22
         const ssh = net.connect(22, '127.0.0.1', () => {
             if (data.includes('Upgrade: websocket')) {
+                // Jei užklausoje yra WebSocket – grąžinam WS antraštes
                 socket.write(
                     "HTTP/1.1 101 Switching Protocols\r\n" +
                     "Upgrade: websocket\r\n" +
@@ -48,23 +50,27 @@ const server = net.createServer((socket) => {
                 ssh.pipe(socket);
                 socket.pipe(ssh);
             } else {
+                // Jei tai paprastas CONNECT / SSH srautas – tyliai sujungiam be jokių HTTP atsakymų
                 ssh.write(buffer);
                 ssh.pipe(socket);
                 socket.pipe(ssh);
             }
         });
+
         ssh.setKeepAlive(true);
         ssh.setNoDelay(true);
         socket.setKeepAlive(true);
         socket.setNoDelay(true);
+
         ssh.on('error', () => socket.destroy());
         socket.on('error', () => ssh.destroy());
     });
 });
 
 server.listen(80, '0.0.0.0', () => {
-    console.log('WS Bridge started on port 80');
+    console.log('Universal Bridge started on port 80');
 });
+
 EOF
 
 

@@ -355,22 +355,32 @@ menu
 ;;
 3|03)
 clear
-
 echo "========== VARTOTOJŲ INFORMACIJA =========="
 echo ""
 
-cut -d: -f1 /etc/passwd | grep -E '^[a-zA-Z0-9]' | while read user
+# Paimame tik tikrus vartotojus, kurių UID yra 1000 arba didesnis (atmetame sisteminius)
+awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd | while read user
 do
-exp=$(chage -l $user 2>/dev/null | grep "Account expires" | cut -d: -f2)
-lim=$(grep "^$user " /root/limit.db 2>/dev/null | awk '{print $2}')
+    # Gauname paskyros galiojimo pabaigos datą
+    exp=$(chage -l "$user" 2>/dev/null | grep "Account expires" | cut -d: -f2)
+    
+    # Gauname prisijungimų limitą iš tavo duomenų bazės (priklausomai nuo to, kur laikai failą)
+    if [ -f /root/limit.db ]; then
+        lim=$(grep -w "^$user" /root/limit.db | awk '{print $2}')
+    elif [ -f /etc/arturo/limitai.db ]; then
+        lim=$(grep -w "^$user" /etc/arturo/limitai.db | awk '{print $2}')
+    else
+        lim=""
+    fi
 
-echo "Vartotojas : $user"
-echo "Galioja iki: $exp"
-echo "Limitas : ${lim:-Neribotas}"
-echo "-----------------------------------"
+    # Gražiai išvedame informaciją į ekraną
+    echo "Vartotojas : $user"
+    echo "Galioja iki: ${exp:-never}"
+    echo "Limitas    : ${lim:-Neribotas}"
+    echo "-------------------------------------------"
 done
 
-read -p "Spausk ENTER..." pause
+read -p "Spausk ENTER..." _
 menu
 ;;
 4|04)

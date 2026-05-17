@@ -235,6 +235,27 @@ systemctl restart badvpn
 cd /root
 rm -rf /tmp/badvpn
 
+mkdir -p /root/limit
+
+cat > /usr/local/bin/userlimit.sh << 'EOF'
+#!/bin/bash
+
+for user in $(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd); do
+    limit=$(cat /root/limit/$user 2>/dev/null)
+
+    [ -z "$limit" ] && continue
+
+    online=$(ps aux | grep -i sshd | grep priv | grep "$user" | grep -v grep | wc -l)
+
+    if [ "$online" -gt "$limit" ]; then
+        pkill -u "$user"
+    fi
+done
+EOF
+
+chmod +x /usr/local/bin/userlimit.sh
+
+(crontab -l 2>/dev/null | grep -v userlimit.sh; echo "* * * * * /usr/local/bin/userlimit.sh") | crontab -
 
 # 6. Gražiname pilną tavo originalų MENU (Visi 16 punktų be pakeitimų)
 cat > /usr/local/bin/menu << 'EOF'

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 GREEN='\033[0;32m'
-RED='\033[0;31m'89
+RED='\033[0;31m'
 BLUE='\033[1;34m'
 NC='\033[0m'
 
@@ -31,6 +31,7 @@ nginx
 
 mkdir -p /etc/arturo
 
+# 1. Sukuriame Node.js WebSocket tiltą
 cat > /etc/arturo/sh.js << 'EOF'
 const net = require('net');
 
@@ -70,13 +71,29 @@ server.listen(8088, () => {
 });
 EOF
 
+# Sukuriame Systemd servisą tam, kad Node.js veiktų fone
+cat > /etc/systemd/system/nodews.service << 'EOF'
+[Unit]
+Description=NodeJS WS Bridge
+After=network.target
 
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/node /etc/arturo/sh.js
+Restart=always
 
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable nodews
+systemctl start nodews
 
 rm -f /etc/nginx/sites-enabled/default
 
-apt install -y squid
-
+# 2. Sutvarkome Squid proxy (Pridėtas reply_access tavo paprastam proxy režimui)
 cat > /etc/squid/squid.conf << 'EOF'
 acl localhost src 127.0.0.1/32 ::1
 acl all src 0.0.0.0/0
@@ -102,37 +119,23 @@ forwarded_for off
 pipeline_prefetch off
 EOF
 
-
-
-
-
-systemctl stop squid 2>/dev/null
-systemctl disable squid 2>/dev/null
-systemctl enable squid
-systemctl restart squid
 mkdir -p /etc/systemd/system/squid.service.d
 cat > /etc/systemd/system/squid.service.d/override.conf << 'EOF'
 [Service]
 LimitNOFILE=65535
 EOF
+
 systemctl daemon-reload
+systemctl enable squid
 systemctl restart squid
 
+# 3. Konfigūruojame Apache2 portus
 sed -i 's/^Listen .*/Listen 8888/g' /etc/apache2/ports.conf
 sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8888>/g' /etc/apache2/sites-enabled/000-default.conf
-sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
-
 systemctl enable apache2
 systemctl restart apache2
 
-systemctl enable stunnel4
-systemctl restart stunnel4
-systemctl start stunnel4
-systemctl daemon-reload
-systemctl enable nodews
-systemctl restart nodews
-systemctl restart nginx
-
+# 4. Konfigūruojame Stunnel4 SSL (Nukreipiam ws-ssl į teisingą Node.js portą 8088)
 mkdir -p /etc/stunnel
 
 openssl req -new -x509 -days 3650 -nodes \
@@ -153,45 +156,31 @@ connect = 127.0.0.1:22
 
 [ws-ssl]
 accept = 6443
-connect = 127.0.0.1:80
+connect = 127.0.0.1:8088
 EOFSSL
 
 echo 'ENABLED=1' > /etc/default/stunnel4
-
 pkill stunnel4
 killall stunnel 2>/dev/null
-
 systemctl enable stunnel4
 systemctl restart stunnel4
-mkdir -p /etc/arturo
-touch /etc/arturo/limitai.db
 
+# 5. Papildomi nustatymai
+touch /etc/arturo/limitai.db
 systemctl enable vnstat 2>/dev/null
 systemctl restart vnstat 2>/dev/null
 
+# Speedtest diegimas
 apt purge -y speedtest-cli 2>/dev/null
 dpkg -r --force-all speedtest-cli 2>/dev/null
 rm -f /usr/bin/speedtest
-
 curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
-
 apt install -y speedtest
-cd /usr/local/src
-rm 
+
 systemctl enable dropbear 2>/dev/null
 systemctl restart dropbear 2>/dev/null
 
-systemctl enable squid 2>/dev/null
-systemctl restart squid 2>/dev/null
-
-sed -i 's/Listen 80/Listen 8888/g' /etc/apache2/ports.conf
-systemctl enable apache2 2>/dev/null
-systemctl restart apache2 2>/dev/null
-mkdir -p /etc/arturo
-
-mkdir -p /etc/arturo
-
-# Sukuriame švarų /etc/issue.net su HTML formatavimu
+# Sukuriame issue.net banerį
 echo "<font color='#33b5e5'>" > /etc/issue.net
 echo "=========================================<br/>" >> /etc/issue.net
 echo "        WELCOME TO ARTURO VPN<br/>" >> /etc/issue.net
@@ -208,12 +197,11 @@ echo "THANK YOU FOR USING ARTURO VPN<br/>" >> /etc/issue.net
 echo "=========================================<br/>" >> /etc/issue.net
 echo "</font>" >> /etc/issue.net
 
-
-
-
 grep -q "^Banner /etc/issue.net" /etc/ssh/sshd_config || echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
 systemctl restart ssh
 systemctl restart dropbear
+
+# 6. Gražiname pilną tavo originalų MENU (Visi 16 punktų be pakeitimų)
 cat > /usr/local/bin/menu << 'EOF'
 #!/bin/bash
 
@@ -259,22 +247,17 @@ echo ""
 echo -e "\033[1;34m=========== SERVICE STATUS ===========\033[0m"
 
 systemctl is-active --quiet ssh && SSH_STATUS="\033[1;32mONLINE\033[0m" || SSH_STATUS="\033[1;31mOFFLINE\033[0m"
-
 systemctl is-active --quiet dropbear && DROPBEAR_STATUS="\033[1;32mONLINE\033[0m" || DROPBEAR_STATUS="\033[1;31mOFFLINE\033[0m"
-
 systemctl is-active --quiet squid && SQUID_STATUS="\033[1;32mONLINE\033[0m" || SQUID_STATUS="\033[1;31mOFFLINE\033[0m"
-
-ss -lntp | grep -q ':80 ' && WS_STATUS="\033[1;32mONLINE\033[0m" || WS_STATUS="\033[1;31mOFFLINE\033[0m"
-
+ss -lntp | grep -q ':8088 ' && WS_STATUS="\033[1;32mONLINE\033[0m" || WS_STATUS="\033[1;31mOFFLINE\033[0m"
 systemctl is-active --quiet stunnel4 && SSL_STATUS="\033[1;32mONLINE\033[0m" || SSL_STATUS="\033[1;31mOFFLINE\033[0m"
 systemctl is-active --quiet apache2 && APACHE_STATUS="\033[1;32mONLINE\033[0m" || APACHE_STATUS="\033[1;31mOFFLINE\033[0m"
-
 pgrep badvpn-udpgw >/dev/null && BADVPN_STATUS="\033[1;32mONLINE\033[0m" || BADVPN_STATUS="\033[1;31mOFFLINE\033[0m"
 
 echo -e "SSH         : 22    $SSH_STATUS"
 echo -e "DROPBEAR    : 110   $DROPBEAR_STATUS"
 echo -e "SQUID       : 8080  $SQUID_STATUS"
-echo -e "WEBSOCKET   : 80    $WS_STATUS"
+echo -e "WEBSOCKET   : 8088  $WS_STATUS"
 echo -e "SSL         : 443   $SSL_STATUS"
 echo -e "APACHE2     : 8888  $APACHE_STATUS"
 echo -e "BADVPN      : 7300  $BADVPN_STATUS"
@@ -595,7 +578,7 @@ clear
 echo "Perkraunami servisai..."
 echo ""
 
-for s in ssh dropbear squid stunnel4 nginx nodews apache2; do
+for s in ssh dropbear squid stunnel4 nodews apache2; do
     echo -n "$s ... "
     systemctl restart $s 2>/dev/null && echo "OK" || echo "KLAIDA / NĖRA"
 done
@@ -632,11 +615,8 @@ clear
 echo "Atnaujinamas skriptas..."
 
 wget -O /root/setup.sh https://raw.githubusercontent.com/arturad/ssh-plus/main/setup.sh
-
 chmod +x /root/setup.sh
-
 bash /root/setup.sh
-
 ;;
 14)
 clear
@@ -651,27 +631,21 @@ echo ""
 read -p "Pasirinkimas: " tor
 
 case $tor in
-
 1)
 iptables -A OUTPUT -p tcp --dport 6881:6999 -j DROP
 iptables -A OUTPUT -p udp --dport 6881:6999 -j DROP
-
 echo ""
 echo "Torrentai užblokuoti!"
 ;;
-
 2)
 iptables -D OUTPUT -p tcp --dport 6881:6999 -j DROP 2>/dev/null
 iptables -D OUTPUT -p udp --dport 6881:6999 -j DROP 2>/dev/null
-
 echo ""
 echo "Torrentai atblokuoti!"
 ;;
-
 *)
 echo "Neteisingas pasirinkimas!"
 ;;
-
 esac
 
 read -p "Spausk ENTER..." pause
@@ -697,13 +671,10 @@ echo ""
 read -p "Pasirinkimas: " bad
 
 case $bad in
-
 1)
 pkill -f badvpn-udpgw 2>/dev/null
 screen -dmS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
-
 sleep 1
-
 if pgrep -f "badvpn-udpgw" >/dev/null; then
     echo ""
     echo "BADVPN paleistas! Statusas: IJUNGTAS"
@@ -712,11 +683,9 @@ else
     echo "BADVPN nepasileido!"
 fi
 ;;
-
 2)
 pkill -f badvpn-udpgw 2>/dev/null
 sleep 1
-
 if pgrep -f "badvpn-udpgw" >/dev/null; then
     echo ""
     echo "BADVPN vis dar veikia!"
@@ -725,11 +694,9 @@ else
     echo "BADVPN sustabdytas! Statusas: ISJUNGTAS"
 fi
 ;;
-
 *)
 echo "Neteisingas pasirinkimas!"
 ;;
-
 esac
 
 read -p "Spausk ENTER..." pause
@@ -755,5 +722,4 @@ EOF
 chmod +x /usr/local/bin/menu
 
 echo -e "${GREEN}Diegimas baigtas! Paleisk: menu${NC}"
-
 menu

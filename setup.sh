@@ -66,7 +66,7 @@ const server = net.createServer((socket) => {
     });
 });
 
-server.listen(8088, () => {
+server.listen(80, () => {
     console.log('WS bridge started');
 });
 EOF
@@ -156,7 +156,7 @@ connect = 127.0.0.1:22
 
 [ws-ssl]
 accept = 6443
-connect = 127.0.0.1:8088
+connect = 127.0.0.1:80
 EOFSSL
 
 echo 'ENABLED=1' > /etc/default/stunnel4

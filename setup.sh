@@ -109,6 +109,13 @@ systemctl stop squid 2>/dev/null
 systemctl disable squid 2>/dev/null
 systemctl enable squid
 systemctl restart squid
+mkdir -p /etc/systemd/system/squid.service.d
+cat > /etc/systemd/system/squid.service.d/override.conf << 'EOF'
+[Service]
+LimitNOFILE=65535
+EOF
+systemctl daemon-reload
+systemctl restart squid
 
 sed -i 's/^Listen .*/Listen 8888/g' /etc/apache2/ports.conf
 sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8888>/g' /etc/apache2/sites-enabled/000-default.conf

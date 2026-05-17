@@ -201,17 +201,12 @@ systemctl restart ssh
 systemctl restart dropbear
 
 # Atsisiunčiame oficialų šaltinį ir sukompiliuojame badvpn-udpgw binarinį failą
-# Saugus kodo atsisiuntimas be jokių GitHub prisijungimo užklausų
-apt-get install -y unzip
-wget https://github.com/ambrop7/badvpn/archive/refs/heads/master.zip -O /tmp/badvpn.zip
-unzip /tmp/badvpn.zip -d /tmp/
-mv /tmp/badvpn-master /tmp/badvpn
+# Saugus oficialaus BadVPN paketo atsisiuntimas be jokio GitHub
+wget http://archive.ubuntu.com/ubuntu/pool/universe/b/badvpn/badvpn_1.999.130-4_amd64.deb -O /tmp/badvpn.deb
+dpkg -i /tmp/badvpn.deb
+ln -s /usr/bin/badvpn-udpgw /usr/local/bin/badvpn-udpgw 2>/dev/null || true
+rm -f /tmp/badvpn.deb
 
-# Kompiliuojame tikrą badvpn-udpgw failą
-mkdir -p /tmp/badvpn/badvpn-build
-cd /tmp/badvpn/badvpn-build
-cmake .. -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1
-make install
 
 
 # Išvalome šiukšles ir grįžtame į pradinį katalogą

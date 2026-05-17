@@ -245,15 +245,17 @@ cat > /usr/local/bin/userlimit.sh << 'EOF'
 #!/bin/bash
 
 for user in $(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd); do
-    limit=$(cat /root/limit/$user 2>/dev/null)
 
-    [ -z "$limit" ] && continue
+limit=$(cat /root/limit/$user 2>/dev/null)
 
-    online=$(ps aux | grep -i sshd | grep priv | grep "$user" | grep -v grep | wc -l)
+[ -z "$limit" ] && continue
 
-    if [ "$online" -gt "$limit" ]; then
-        pkill -u "$user"
-    fi
+TOTAL=$(ps aux | grep -E "sshd|dropbear" | grep "$user" | grep -v grep | wc -l)
+
+if [ "$TOTAL" -gt "$limit" ]; then
+pkill -u "$user"
+fi
+
 done
 EOF
 

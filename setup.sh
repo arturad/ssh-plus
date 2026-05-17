@@ -200,16 +200,38 @@ grep -q "^Banner /etc/issue.net" /etc/ssh/sshd_config || echo "Banner /etc/issue
 systemctl restart ssh
 systemctl restart dropbear
 
-# Atsisiunčiame oficialų šaltinį ir sukompiliuojame badvpn-udpgw binarinį failą
-# Saugus oficialaus BadVPN paketo atsisiuntimas be jokio GitHub
-wget http://archive.ubuntu.com/ubuntu/pool/universe/b/badvpn/badvpn_1.999.130-4_amd64.deb -O /tmp/badvpn.deb
-dpkg -i /tmp/badvpn.deb
-ln -s /usr/bin/badvpn-udpgw /usr/local/bin/badvpn-udpgw 2>/dev/null || true
-rm -f /tmp/badvpn.deb
+apt install -y cmake make gcc g++ git
 
+cd /tmp
+rm -rf badvpn
 
+git clone https://github.com/ambrop72/badvpn.git
+cd badvpn
 
-# Išvalome šiukšles ir grįžtame į pradinį katalogą
+mkdir build
+cd build
+
+cmake .. -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1
+
+make install
+
+cat > /etc/systemd/system/badvpn.service << 'EOF'
+[Unit]
+Description=BadVPN UDPGW
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/badvpn-udpgw --listen-addr 0.0.0.0:7300 --max-clients 500
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable badvpn
+systemctl restart badvpn
+
 cd /root
 rm -rf /tmp/badvpn
 

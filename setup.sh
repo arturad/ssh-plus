@@ -66,7 +66,7 @@ const server = net.createServer((socket) => {
     });
 });
 
-server.listen(80, () => {
+server.listen(8088, () => {
     console.log('WS bridge started');
 });
 EOF
@@ -265,7 +265,7 @@ echo -e "BADVPN      : 7300  $BADVPN_STATUS"
 echo -e "\033[1;34m======================================\033[0m"
 echo -e "\033[1;36m[01]\033[0m • SUKURTI VARTOTOJĄ        \033[1;36m[09]\033[0m • BACKUP"
 echo -e "\033[1;36m[02]\033[0m • PAŠALINTI VARTOTOJĄ      \033[1;36m[10]\033[0m • PERKRAUTI SERVISUS"
-echo -e "\033[1;36m[03]\033[0m • PRISIJUNGĘ VARTOTOJAI    \033[1;36m[11]\033[0m • PERKRAUTI SISTEMĄ"
+echo -e "\033[1;36m[03]\033[0m • VARTOTOJU INFORMACIJA    \033[1;36m[11]\033[0m • PERKRAUTI SISTEMĄ"
 echo -e "\033[1;36m[04]\033[0m • KEISTI DATĄ              \033[1;36m[12]\033[0m • AUTO PALEISTIS MENU"
 echo -e "\033[1;36m[05]\033[0m • KEISTI LIMITĄ            \033[1;36m[13]\033[0m • ATNAUJINTI SKRIPTĄ"
 echo -e "\033[1;36m[06]\033[0m • KEISTI SLAPTAŽODĮ        \033[1;36m[14]\033[0m • BLOKUOTI TORRENTUS"

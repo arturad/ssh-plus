@@ -197,6 +197,14 @@ echo "=========================================<br/>" >> /etc/issue.net
 echo "</font>" >> /etc/issue.net
 
 grep -q "^Banner /etc/issue.net" /etc/ssh/sshd_config || echo "Banner /etc/issue.net" >> /etc/ssh/sshd_config
+echo "UseDNS no" >> /etc/ssh/sshd_config
+echo "TCPKeepAlive yes" >> /etc/ssh/sshd_config
+echo "ClientAliveInterval 30" >> /etc/ssh/sshd_config
+echo "ClientAliveCountMax 99999" >> /etc/ssh/sshd_config
+echo "MaxSessions 500" >> /etc/ssh/sshd_config
+echo "MaxStartups 500:30:1000" >> /etc/ssh/sshd_config
+echo "LoginGraceTime 20" >> /etc/ssh/sshd_config
+echo "Compression no" >> /etc/ssh/sshd_config
 systemctl restart ssh
 systemctl restart dropbear
 

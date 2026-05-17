@@ -32,6 +32,7 @@ nginx
 mkdir -p /etc/arturo
 
 # 1. Sukuriame Node.js WebSocket tiltą
+cat > /etc/arturo/sh.js << 'EOF'
 const net = require('net');
 
 const server = net.createServer((socket) => {

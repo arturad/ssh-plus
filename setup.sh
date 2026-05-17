@@ -47,7 +47,12 @@ const server = net.createServer((socket) => {
                 "Connection: Upgrade\r\n\r\n"
             );
             
+            // Jungiamės prie SSH porto 22
             const ssh = net.connect(22, '127.0.0.1', () => {
+                // SVARBU: Nusiunčiame pirmąjį gautą paketą į SSH, kad ryšys neužstrigtų!
+                ssh.write(buffer);
+                
+                // Sujungiame srautus abiem kryptim
                 socket.pipe(ssh);
                 ssh.pipe(socket);
             });
@@ -60,16 +65,17 @@ const server = net.createServer((socket) => {
             ssh.on('error', () => socket.destroy());
             socket.on('error', () => ssh.destroy());
         } else {
-            // Jei tai paprastas srautas, šitas skriptas pasitraukia
+            // Jei tai paprastas srautas, tiesiog uždarome ryšį
             socket.destroy();
         }
     });
 });
 
 server.listen(8088, () => {
-    console.log('WS bridge started');
+    console.log('WS bridge started on port 8088');
 });
 EOF
+
 
 # Sukuriame Systemd servisą tam, kad Node.js veiktų fone
 cat > /etc/systemd/system/nodews.service << 'EOF'

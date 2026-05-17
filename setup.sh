@@ -508,7 +508,9 @@ read -p "Naujas limitas: " limit
 
 if id "$user" >/dev/null 2>&1; then
 
-sed -i "/^$user /d" /etc/arturo/limitai.db
+mkdir -p /root/limit
+echo "$limit" > /root/limit/$user
+sed -i "/^$user /d" /etc/arturo/limitai.db 2>/dev/null
 echo "$user $limit" >> /etc/arturo/limitai.db
 
 echo ""

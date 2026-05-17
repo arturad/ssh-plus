@@ -35,12 +35,10 @@ cat > /etc/arturo/sh.js << 'EOF'
 const net = require('net');
 
 const server = net.createServer((socket) => {
-    let ssh = null;
-
     socket.once('data', (buffer) => {
         const data = buffer.toString();
 
-        // Jeigu tai yra WebSocket užklausa (WS)
+        // Jeigu tai tikra WS užklausa
         if (data.includes('Upgrade: websocket')) {
             socket.write(
                 "HTTP/1.1 101 Switching Protocols\r\n" +
@@ -48,22 +46,11 @@ const server = net.createServer((socket) => {
                 "Connection: Upgrade\r\n\r\n"
             );
             
-            // WS srautą nukreipiame tiesiai į SSH (portą 22)
-            ssh = net.connect(22, '127.0.0.1', () => {
+            const ssh = net.connect(22, '127.0.0.1', () => {
                 socket.pipe(ssh);
                 ssh.pipe(socket);
             });
-        } else {
-            // Jeigu tai PAPRASTA užklausa (Squid proxy)
-            // SIUNČIAME SRAUTĄ TIESIAI Į SQUID (portą 8080), o ne į portą 22!
-            ssh = net.connect(8080, '127.0.0.1', () => {
-                ssh.write(buffer); // perduodame pradinį paketą Squid serveriui
-                socket.pipe(ssh);
-                ssh.pipe(socket);
-            });
-        }
 
-        if (ssh) {
             ssh.setKeepAlive(true);
             ssh.setNoDelay(true);
             socket.setKeepAlive(true);
@@ -71,15 +58,18 @@ const server = net.createServer((socket) => {
 
             ssh.on('error', () => socket.destroy());
             socket.on('error', () => ssh.destroy());
+        } else {
+            // Jei tai paprastas srautas, šitas skriptas pasitraukia
+            socket.destroy();
         }
     });
 });
 
-// WS klausosi porto 80 (per Nginx) arba bet kokio kito tavo pasirinkto porto fone
 server.listen(8088, () => {
     console.log('WS bridge started');
 });
 EOF
+
 
 
 
@@ -88,34 +78,30 @@ rm -f /etc/nginx/sites-enabled/default
 apt install -y squid
 
 cat > /etc/squid/squid.conf << 'EOF'
-# Leidžiame localhost ir visus išorinius IP
 acl localhost src 127.0.0.1/32 ::1
 acl all src 0.0.0.0/0
 
-# Saugūs portai tuneliavimui
-acl Safe_ports port 80          # HTTP
-acl Safe_ports port 443         # HTTPS
-acl Safe_ports port 22          # SSH
-acl Safe_ports port 110         # Dropbear
-acl Safe_ports port 8080        # Squid
+acl Safe_ports port 80
+acl Safe_ports port 443
+acl Safe_ports port 22
+acl Safe_ports port 110
+acl Safe_ports port 8080
 acl CONNECT method CONNECT
 
-# TAISYKLĖS - Leidžiame prieigą
 http_access allow localhost
 http_access allow Safe_ports
 http_access allow CONNECT
 http_reply_access allow all
 http_access allow all
 
-# Portas
 http_port 0.0.0.0:8080
 
-# Anonimiškumas
 visible_hostname VPSMANAGER
 via off
 forwarded_for off
 pipeline_prefetch off
 EOF
+
 
 
 

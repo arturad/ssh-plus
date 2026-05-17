@@ -39,7 +39,6 @@ const server = net.createServer((socket) => {
     socket.once('data', (buffer) => {
         const data = buffer.toString();
 
-        // Jeigu tai tikra WS užklausa
         if (data.includes('Upgrade: websocket')) {
             socket.write(
                 "HTTP/1.1 101 Switching Protocols\r\n" +
@@ -47,12 +46,7 @@ const server = net.createServer((socket) => {
                 "Connection: Upgrade\r\n\r\n"
             );
             
-            // Jungiamės prie SSH porto 22
             const ssh = net.connect(22, '127.0.0.1', () => {
-                // SVARBU: Nusiunčiame pirmąjį gautą paketą į SSH, kad ryšys neužstrigtų!
-                ssh.write(buffer);
-                
-                // Sujungiame srautus abiem kryptim
                 socket.pipe(ssh);
                 ssh.pipe(socket);
             });
@@ -65,16 +59,16 @@ const server = net.createServer((socket) => {
             ssh.on('error', () => socket.destroy());
             socket.on('error', () => ssh.destroy());
         } else {
-            // Jei tai paprastas srautas, tiesiog uždarome ryšį
             socket.destroy();
         }
     });
 });
 
-server.listen(8088, () => {
-    console.log('WS bridge started on port 8088');
+server.listen(80, () => {
+    console.log('WS bridge started on port 80');
 });
 EOF
+
 
 
 # Sukuriame Systemd servisą tam, kad Node.js veiktų fone
@@ -98,6 +92,10 @@ systemctl enable nodews
 systemctl start nodews
 
 rm -f /etc/nginx/sites-enabled/default
+# Sunaikiname Nginx procesą ir visiškai atlaisviname portą 80
+systemctl stop nginx 2>/dev/null
+systemctl disable nginx 2>/dev/null
+pkill -f nginx 2>/dev/null
 
 # 2. Sutvarkome Squid proxy (Pridėtas reply_access tavo paprastam proxy režimui)
 cat > /etc/squid/squid.conf << 'EOF'
@@ -159,11 +157,8 @@ socket = r:TCP_NODELAY=1
 [ssh-ssl]
 accept = 443
 connect = 127.0.0.1:22
-
-[ws-ssl]
-accept = 6443
-connect = 127.0.0.1:80
 EOFSSL
+
 
 echo 'ENABLED=1' > /etc/default/stunnel4
 pkill stunnel4

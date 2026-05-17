@@ -200,6 +200,18 @@ grep -q "^Banner /etc/issue.net" /etc/ssh/sshd_config || echo "Banner /etc/issue
 systemctl restart ssh
 systemctl restart dropbear
 
+# Atsisiunčiame oficialų šaltinį ir sukompiliuojame badvpn-udpgw binarinį failą
+git clone https://github.com/ambrop7/badvpn.git /tmp/badvpn
+mkdir -p /tmp/badvpn/badvpn-build
+cd /tmp/badvpn/badvpn-build
+cmake .. -DBUILD_NOTHING_BY_DEFAULT=1 -DBUILD_UDPGW=1
+make install
+
+# Išvalome šiukšles ir grįžtame į pradinį katalogą
+cd /root
+rm -rf /tmp/badvpn
+
+
 # 6. Gražiname pilną tavo originalų MENU (Visi 16 punktų be pakeitimų)
 cat > /usr/local/bin/menu << 'EOF'
 #!/bin/bash

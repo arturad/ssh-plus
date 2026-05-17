@@ -208,7 +208,7 @@ echo "Compression no" >> /etc/ssh/sshd_config
 systemctl restart ssh
 systemctl restart dropbear
 
-apt install -y cmake make gcc g++ git
+apt install -y cmake make gcc g++ git speedtest-cli
 
 cd /tmp
 rm -rf badvpn

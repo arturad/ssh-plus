@@ -230,6 +230,9 @@ EOF
 
 systemctl daemon-reload
 systemctl enable badvpn
+pkill badvpn-udpgw 2>/dev/null
+fuser -k 7300/tcp 2>/dev/null
+fuser -k 7300/udp 2>/dev/null
 systemctl restart badvpn
 
 cd /root

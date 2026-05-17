@@ -40,34 +40,47 @@ const server = net.createServer((socket) => {
     socket.once('data', (buffer) => {
         const data = buffer.toString();
 
+        // Jeigu tai yra WebSocket užklausa (WS)
         if (data.includes('Upgrade: websocket')) {
             socket.write(
                 "HTTP/1.1 101 Switching Protocols\r\n" +
                 "Upgrade: websocket\r\n" +
                 "Connection: Upgrade\r\n\r\n"
             );
+            
+            // WS srautą nukreipiame tiesiai į SSH (portą 22)
+            ssh = net.connect(22, '127.0.0.1', () => {
+                socket.pipe(ssh);
+                ssh.pipe(socket);
+            });
+        } else {
+            // Jeigu tai PAPRASTA užklausa (Squid proxy)
+            // SIUNČIAME SRAUTĄ TIESIAI Į SQUID (portą 8080), o ne į portą 22!
+            ssh = net.connect(8080, '127.0.0.1', () => {
+                ssh.write(buffer); // perduodame pradinį paketą Squid serveriui
+                socket.pipe(ssh);
+                ssh.pipe(socket);
+            });
         }
 
-        // Štai čia buvo klaida: jungiamės ne prie 22 (SSH), o prie 8080 (Squid Proxy)!
-        ssh = net.connect(22, '127.0.0.1', () => {
-            socket.pipe(ssh);
-            ssh.pipe(socket);
-        });
+        if (ssh) {
+            ssh.setKeepAlive(true);
+            ssh.setNoDelay(true);
+            socket.setKeepAlive(true);
+            socket.setNoDelay(true);
 
-        ssh.setKeepAlive(true);
-        ssh.setNoDelay(true);
-        socket.setKeepAlive(true);
-        socket.setNoDelay(true);
-
-        ssh.on('error', () => socket.destroy());
-        socket.on('error', () => ssh.destroy());
+            ssh.on('error', () => socket.destroy());
+            socket.on('error', () => ssh.destroy());
+        }
     });
 });
 
+// WS klausosi porto 80 (per Nginx) arba bet kokio kito tavo pasirinkto porto fone
 server.listen(8088, () => {
     console.log('WS bridge started');
 });
 EOF
+
 
 
 rm -f /etc/nginx/sites-enabled/default
@@ -91,6 +104,7 @@ acl CONNECT method CONNECT
 http_access allow localhost
 http_access allow Safe_ports
 http_access allow CONNECT
+http_reply_access allow all
 http_access allow all
 
 # Portas
@@ -102,6 +116,7 @@ via off
 forwarded_for off
 pipeline_prefetch off
 EOF
+
 
 
 

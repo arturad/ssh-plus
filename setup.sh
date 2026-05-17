@@ -169,13 +169,6 @@ touch /etc/arturo/limitai.db
 systemctl enable vnstat 2>/dev/null
 systemctl restart vnstat 2>/dev/null
 
-# Speedtest diegimas
-apt purge -y speedtest-cli 2>/dev/null
-dpkg -r --force-all speedtest-cli 2>/dev/null
-rm -f /usr/bin/speedtest
-curl -s https://packagecloud.io/install/repositories/ookla/speedtest-cli/script.deb.sh | bash
-apt install -y speedtest
-
 systemctl enable dropbear 2>/dev/null
 systemctl restart dropbear 2>/dev/null
 
@@ -556,7 +549,7 @@ menu
 ;;
 8|08)
 clear
-speedtest
+speedtest-cli
 read -p "Spausk ENTER..." pause
 menu
 ;;

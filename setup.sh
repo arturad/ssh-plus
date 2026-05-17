@@ -32,42 +32,41 @@ nginx
 mkdir -p /etc/arturo
 
 # 1. Sukuriame Node.js WebSocket tiltą
-cat > /etc/arturo/sh.js << 'EOF'
+cat << 'EOF' > /etc/arturo/sh.js
 const net = require('net');
 
 const server = net.createServer((socket) => {
     socket.once('data', (buffer) => {
         const data = buffer.toString();
-
-        if (data.includes('Upgrade: websocket')) {
-            socket.write(
-                "HTTP/1.1 101 Switching Protocols\r\n" +
-                "Upgrade: websocket\r\n" +
-                "Connection: Upgrade\r\n\r\n"
-            );
-            
-            const ssh = net.connect(22, '127.0.0.1', () => {
-                socket.pipe(ssh);
+        const ssh = net.connect(22, '127.0.0.1', () => {
+            if (data.includes('Upgrade: websocket')) {
+                socket.write(
+                    "HTTP/1.1 101 Switching Protocols\r\n" +
+                    "Upgrade: websocket\r\n" +
+                    "Connection: Upgrade\r\n\r\n"
+                );
                 ssh.pipe(socket);
-            });
-
-            ssh.setKeepAlive(true);
-            ssh.setNoDelay(true);
-            socket.setKeepAlive(true);
-            socket.setNoDelay(true);
-
-            ssh.on('error', () => socket.destroy());
-            socket.on('error', () => ssh.destroy());
-        } else {
-            socket.destroy();
-        }
+                socket.pipe(ssh);
+            } else {
+                ssh.write(buffer);
+                ssh.pipe(socket);
+                socket.pipe(ssh);
+            }
+        });
+        ssh.setKeepAlive(true);
+        ssh.setNoDelay(true);
+        socket.setKeepAlive(true);
+        socket.setNoDelay(true);
+        ssh.on('error', () => socket.destroy());
+        socket.on('error', () => ssh.destroy());
     });
 });
 
-server.listen(80, () => {
-    console.log('WS bridge started on port 80');
+server.listen(80, '0.0.0.0', () => {
+    console.log('WS Bridge started on port 80');
 });
 EOF
+
 
 
 
@@ -98,41 +97,20 @@ systemctl disable nginx 2>/dev/null
 pkill -f nginx 2>/dev/null
 
 cat > /etc/squid/squid.conf << 'EOF'
-# Prieigos sąrašai
-acl localhost src 127.0.0.1/32 ::1
-acl all src 0.0.0.0/0
-
-# Leidžiame visus portus ir metodus (įskaitant WebSocket)
 acl Safe_ports port 80
-acl Safe_ports port 443
-acl Safe_ports port 22
-acl Safe_ports port 110
-acl Safe_ports port 8080
+http_access allow CONNECT Safe_ports
+
+acl all src 0.0.0.0/0
 acl CONNECT method CONNECT
 
-# Svarbiausia dalis: Išjungiame Squid griežtą HTTP tikrinimą,
-# kad jis neblokuotų "Upgrade: websocket" antraščių
-http_access allow localhost
-http_access allow Safe_ports
-http_access allow CONNECT
 http_access allow all
 http_reply_access allow all
 
-# Atveriame portą
 http_port 0.0.0.0:8080
+dns_v4_first on
 
-# Paverčiame Squid visiškai skaidriu (Transparent/Tunnel) proxy,
-# kad jis nekeistų ir nefiltruotų jokių užklausos eilučių
-via off
-forwarded_for off
-request_header_access Allow allow all
-request_header_access Authorization allow all
-request_header_access Proxy-Authorization allow all
-request_header_access Proxy-Connection allow all
-request_header_access Connect allow all
-request_header_access Connection allow all
-request_header_access Upgrade allow all
-request_header_access All allow all
+visible_hostname VPSMANAGER
+
 EOF
 
 

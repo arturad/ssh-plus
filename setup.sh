@@ -292,7 +292,7 @@ echo "Naudoja: ${RAM_USED}%"
 echo ""
 echo -e "\033[1;34m====================================\033[0m"
 
-online=$(who | wc -l)
+online=$(ps aux | grep -i sshd | grep priv | grep -v root | grep -v grep | wc -l)
 
 total=$(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd | wc -l)
 

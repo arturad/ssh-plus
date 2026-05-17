@@ -97,11 +97,12 @@ systemctl stop nginx 2>/dev/null
 systemctl disable nginx 2>/dev/null
 pkill -f nginx 2>/dev/null
 
-# 2. Sutvarkome Squid proxy (Pridėtas reply_access tavo paprastam proxy režimui)
 cat > /etc/squid/squid.conf << 'EOF'
+# Prieigos sąrašai
 acl localhost src 127.0.0.1/32 ::1
 acl all src 0.0.0.0/0
 
+# Leidžiame visus portus ir metodus (įskaitant WebSocket)
 acl Safe_ports port 80
 acl Safe_ports port 443
 acl Safe_ports port 22
@@ -109,19 +110,31 @@ acl Safe_ports port 110
 acl Safe_ports port 8080
 acl CONNECT method CONNECT
 
+# Svarbiausia dalis: Išjungiame Squid griežtą HTTP tikrinimą,
+# kad jis neblokuotų "Upgrade: websocket" antraščių
 http_access allow localhost
 http_access allow Safe_ports
 http_access allow CONNECT
-http_reply_access allow all
 http_access allow all
+http_reply_access allow all
 
+# Atveriame portą
 http_port 0.0.0.0:8080
 
-visible_hostname VPSMANAGER
+# Paverčiame Squid visiškai skaidriu (Transparent/Tunnel) proxy,
+# kad jis nekeistų ir nefiltruotų jokių užklausos eilučių
 via off
 forwarded_for off
-pipeline_prefetch off
+request_header_access Allow allow all
+request_header_access Authorization allow all
+request_header_access Proxy-Authorization allow all
+request_header_access Proxy-Connection allow all
+request_header_access Connect allow all
+request_header_access Connection allow all
+request_header_access Upgrade allow all
+request_header_access All allow all
 EOF
+
 
 mkdir -p /etc/systemd/system/squid.service.d
 cat > /etc/systemd/system/squid.service.d/override.conf << 'EOF'

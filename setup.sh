@@ -503,7 +503,22 @@ menu
 ;;
 4|04)
 clear
+echo "========================="
+echo "     VPN VARTOTOJAI      "
+echo "========================="
+if [ -s /etc/arturo/limitai.db ]; then
+    while read -r u l; do
+        exp=$(chage -l "$u" | grep "Account expires" | cut -d: -f2 | xargs)
+        echo "Vartotojas : $u"
+        echo "Galioja iki: $exp"
+        echo "-------------------------"
+    done < /etc/arturo/limitai.db
+else
+    echo "Vartotojų nėra."
+fi
+echo ""
 read -p "Įveskite vartotoją: " user
+
 read -p "Kiek dienų pridėti: " extra
 
 if chage -l "$user" >/dev/null 2>&1; then
@@ -572,7 +587,21 @@ menu
 ;;
 6|06)
 clear
+echo "========================="
+echo "     VPN VARTOTOJAI      "
+echo "========================="
+if [ -s /etc/arturo/limitai.db ]; then
+    while read -r u l; do
+        echo "Vartotojas : $u"
+        echo "Limitai    : $l"
+        echo "-------------------------"
+    done < /etc/arturo/limitai.db
+else
+    echo "Vartotojų nėra."
+fi
+echo ""
 read -p "Vartotojas: " user
+
 read -p "Naujas slaptažodis: " pass
 
 echo "$user:$pass" | chpasswd

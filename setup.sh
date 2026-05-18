@@ -808,7 +808,7 @@ echo " PRISIJUNGĘ VARTOTOJAI"
 echo "=========================="
 echo ""
 
-ps -ef | grep "sshd:" | grep -v "/usr/sbin/sshd" | grep -v "priv" | grep -v "root@" | grep -v grep | awk '{print $NF}' | sort | uniq -c
+who | awk '{print $1}' | grep -v root | sort | uniq -c
 
 echo ""
 read -p "Spausk ENTER..." pause

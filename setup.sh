@@ -30,14 +30,16 @@ nodejs \
 nginx
 
 mkdir -p /etc/arturo
-
+touch /etc/arturo/limitai.db
+chmod -R 777 /etc/arturo
 # =========================================================================
 # NAUJAS METODAS: NGINX PRIEKYJE (PORT 80) + NODE.JS FONE (PORT 8181)
 # =========================================================================
 
 # 1. Sukuriame Node.js WebSocket tiltą ant porto 8181
 mkdir -p /etc/arturo
-cat << 'EOF' > /etc/arturo/sh.js
+cat << 'EOF_NODEJS' > /etc/arturo/sh.js
+
 const net = require('net');
 const server = net.createServer((socket) => {
     socket.once('data', (buffer) => {
@@ -66,10 +68,11 @@ const server = net.createServer((socket) => {
     });
 });
 server.listen(8181, '127.0.0.1');
-EOF
+EOF_NODEJS
+
 
 # 2. Sukuriame Systemd servisą, kad Node.js veiktų fone visada
-cat << 'EOF' > /etc/systemd/system/nodews.service
+cat << 'EOF_SERVICE' > /etc/systemd/system/nodews.service
 [Unit]
 Description=NodeJS WS Backend
 After=network.target
@@ -82,10 +85,11 @@ Restart=always
 
 [Install]
 WantedBy=multi-user.target
-EOF
+EOF_SERVICE
+
 
 # 3. Sukuriame švarią Nginx konfigūraciją portui 80
-cat << 'EOF' > /etc/nginx/conf.d/sshws.conf
+cat << 'EOF_NGINX' > /etc/nginx/conf.d/sshws.conf
 server {
     listen 80;
     server_name _;
@@ -97,7 +101,8 @@ server {
         proxy_set_header Host $host;
     }
 }
-EOF
+EOF_NGINX
+
 
 # 4. Paleidžiame ir įgaliname visus servisus
 systemctl daemon-reload
@@ -133,15 +138,18 @@ request_header_access Proxy-Connection allow all
 request_header_access Proxy-Respond allow all
 
 visible_hostname VPSMANAGER
-EOF
+EOF_SQUID
 
 
+⅜
 
 mkdir -p /etc/systemd/system/squid.service.d
-cat > /etc/systemd/system/squid.service.d/override.conf << 'EOF'
+cat > /etc/systemd/system/squid.service.d/override.conf << 'EOF_SQUID_OVERRIDE'
+
 [Service]
 LimitNOFILE=65535
-EOF
+EOF_SQUID_OVERRIDE
+
 
 systemctl daemon-reload
 systemctl enable squid

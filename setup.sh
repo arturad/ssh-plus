@@ -300,6 +300,35 @@ fi
 EOF_USERLIMIT
 
 
+# Sukuriame direktoriją, jei jos nėra
+mkdir -p /etc/arturo
+
+# Sukuriame gražų pasisveikinimo Banner failą
+cat > /etc/arturo/banner << 'EOF_BANNER'
+#!/bin/bash
+clear
+# Spalvų kintamieji
+CYAN='\033[0;36m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+echo -e "${CYAN} __  __ _   _    ____  _     _   _ ____  ${NC}"
+echo -e "${CYAN}|  \/  | | | |  |  _ \| |   | | | / ___| ${NC}"
+echo -e "${CYAN}| |\/| | | | |  | |_) | |   | | | \___ \ ${NC}"
+echo -e "${CYAN}| |  | | |_| |  |  __/| |___| |_| |___) |${NC}"
+echo -e "${CYAN}|_|  |_|\___/   |_|   |_____|\___/|____/ ${NC}"
+echo ""
+echo -e "${GREEN}SERVERIO PAVADINIMAS :${NC} $(hostname)"
+echo -e "${GREEN}DATA :${NC} $(date +'%d-%m-%y')"
+echo -e "${GREEN}LAIKAS :${NC} $(date +'%T')"
+echo -e "${GREEN}@Arturas${NC}"
+echo -e "${RED}NAUDOKITE KOMANDA ( menu ) IEITI I SCRIPTĄ.${NC}"
+echo ""
+EOF_BANNER
+
+chmod +x /etc/arturo/banner
 
 
 
@@ -933,6 +962,8 @@ chmod +x /usr/local/bin/menu
 
 # Kasnakt 04:00 val. ryte automatiškai perkrauname servisus, kad išsivalytų RAM atmintis
 (crontab -l 2>/dev/null | grep -v "systemctl restart"; echo "0 4 * * * systemctl restart ssh dropbear squid nginx badvpn >/dev/null 2>&1") | crontab -
+# Įrašome bannerio paleidimą į sistemos profilį, kad rodytų iškart prisijungus prie SSH
+grep -q "/etc/arturo/banner" /root/.bashrc || echo "bash /etc/arturo/banner" >> /root/.bashrc
 
 echo -e "${GREEN}Diegimas baigtas! Paleisk: menu${NC}"
 menu

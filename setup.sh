@@ -314,11 +314,12 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${CYAN} __  __ _   _    ____  _     _   _ ____  ${NC}"
-echo -e "${CYAN}|  \/  | | | |  |  _ \| |   | | | / ___| ${NC}"
-echo -e "${CYAN}| |\/| | | | |  | |_) | |   | | | \___ \ ${NC}"
-echo -e "${CYAN}| |  | | |_| |  |  __/| |___| |_| |___) |${NC}"
-echo -e "${CYAN}|_|  |_|\___/   |_|   |_____|\___/|____/ ${NC}"
+echo -e "${CYAN} ____ ____  _   _     ____  _    _   _ ____  ${NC}"
+echo -e "${CYAN}/ ___/ ___|| | | |   |  _ \| |  | | | / ___| ${NC}"
+echo -e "${CYAN}\___ \___ \| |_| |   | |_) | |  | | | \___ \ ${NC}"
+echo -e "${CYAN} ___) |__) |  _  |   |  __/| |__| |_| |___) |${NC}"
+echo -e "${CYAN}|____/____/|_| |_|___|_|   |_____\___/|____/ ${NC}"
+echo -e "${CYAN}                |_____|                      ${NC}"
 echo ""
 echo -e "${GREEN}SERVERIO PAVADINIMAS :${NC} $(hostname)"
 echo -e "${GREEN}DATA :${NC} $(date +'%d-%m-%y')"
@@ -327,6 +328,7 @@ echo -e "${GREEN}@Arturas${NC}"
 echo -e "${RED}NAUDOKITE KOMANDA ( menu ) IEITI I SCRIPTĄ.${NC}"
 echo ""
 EOF_BANNER
+
 
 chmod +x /etc/arturo/banner
 

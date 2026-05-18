@@ -273,24 +273,26 @@ rm -rf /tmp/badvpn
 
 mkdir -p /root/limit
 
-# Sukuriame naują, protingą tikrintoją, palaikantį WS + SSL
 cat > /usr/local/bin/userlimit.sh << 'EOF_USERLIMIT'
 #!/bin/bash
 if [ -s /etc/arturo/limitai.db ]; then
     while read -r user limit; do
-        [[ -z "$user" || -z "$limit" ]] && continue
+        # Praleidžiame tuščias eilutes arba netikrus sistemos žodžius
+        [[ -z "$user" || -z "$limit" || "$user" == "net" ]] && continue
         
-        # Tiksliausias skaičiavimas: mato tiek SSL (Stunnel), tiek tavo WS (Node.js) seansus
-        TOTAL=$(ps aux | grep "sshd:" | grep -v grep | grep -c "$user")
+        # Skaičiuojame TIK realius SSH seansus, kurie priklauso tam vartotojui
+        # Atmetame tavo pačio vykdomas tikrinimo komandas, kad pats savęs neišspirtų
+        TOTAL=$(ps aux | grep -E "sshd: $user@|sshd: $user " | grep -v grep | wc -l)
         
         if [ "$TOTAL" -gt "$limit" ]; then
-            # Atjungiame tik viršytus seansus arba visus to userio procesus saugumo dėlei
+            # Atjungiame tik viršytus seansus
             pkill -f "sshd: $user"
             pkill -u "$user"
         fi
     done < /etc/arturo/limitai.db
 fi
 EOF_USERLIMIT
+
 
 
 

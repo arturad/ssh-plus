@@ -800,6 +800,20 @@ echo "Telegram botas bus pridėtas vėliau."
 read -p "Spausk ENTER..." pause
 menu
 ;;
+17|17)
+clear
+
+echo "=========================="
+echo " PRISIJUNGE VARTOTOJAI"
+echo "=========================="
+echo ""
+
+who | awk '{print $1}' | sort | uniq -c
+
+echo ""
+read -p "Spausk ENTER..." pause
+menu
+;;
 0|00)
 exit
 ;;

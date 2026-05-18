@@ -31,56 +31,47 @@ nginx
 
 mkdir -p /etc/arturo
 
-# 1. Sukuriame Node.js WebSocket tiltą
-cat > /etc/arturo/sh.js << 'EOF'
-const net = require('net');
+# =========================================================================
+# NAUJAS METODAS: NGINX PRIEKYJE (PORT 80) + NODE.JS FONE (PORT 8181)
+# =========================================================================
 
+# 1. Sukuriame Node.js WebSocket tiltą ant porto 8181
+mkdir -p /etc/arturo
+cat << 'EOF' > /etc/arturo/sh.js
+const net = require('net');
 const server = net.createServer((socket) => {
     socket.once('data', (buffer) => {
         const data = buffer.toString();
-
-        // Nukreipiam tiesiai į OpenSSH portą 22
         const ssh = net.connect(22, '127.0.0.1', () => {
             if (data.includes('Upgrade: websocket')) {
-                // Jei užklausoje yra WebSocket – grąžinam WS antraštes
                 socket.write(
-                    "HTTP/1.1 101 Switching Protocols\r\n" +
+                    "HTTP/1.1 101 Script By Arturo\r\n" +
                     "Upgrade: websocket\r\n" +
                     "Connection: Upgrade\r\n\r\n"
                 );
                 ssh.pipe(socket);
                 socket.pipe(ssh);
             } else {
-                // Jei tai paprastas CONNECT / SSH srautas – tyliai sujungiam be jokių HTTP atsakymų
                 ssh.write(buffer);
                 ssh.pipe(socket);
                 socket.pipe(ssh);
             }
         });
-
         ssh.setKeepAlive(true);
         ssh.setNoDelay(true);
         socket.setKeepAlive(true);
         socket.setNoDelay(true);
-
         ssh.on('error', () => socket.destroy());
         socket.on('error', () => ssh.destroy());
     });
 });
-
-server.listen(80, '0.0.0.0', () => {
-    console.log('Universal Bridge started on port 80');
-});
-
+server.listen(8181, '127.0.0.1');
 EOF
 
-
-
-
-# Sukuriame Systemd servisą tam, kad Node.js veiktų fone
-cat > /etc/systemd/system/nodews.service << 'EOF'
+# 2. Sukuriame Systemd servisą, kad Node.js veiktų fone visada
+cat << 'EOF' > /etc/systemd/system/nodews.service
 [Unit]
-Description=NodeJS WS Bridge
+Description=NodeJS WS Backend
 After=network.target
 
 [Service]
@@ -93,15 +84,25 @@ Restart=always
 WantedBy=multi-user.target
 EOF
 
-systemctl daemon-reload
-systemctl enable nodews
-systemctl start nodews
+# 3. Sukuriame švarią Nginx konfigūraciją portui 80
+cat << 'EOF' > /etc/nginx/conf.d/sshws.conf
+server {
+    listen 80;
+    server_name _;
+    location / {
+        proxy_pass http://127.0.0.1:8181;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+    }
+}
+EOF
 
-rm -f /etc/nginx/sites-enabled/default
-# Sunaikiname Nginx procesą ir visiškai atlaisviname portą 80
-systemctl stop nginx 2>/dev/null
-systemctl disable nginx 2>/dev/null
-pkill -f nginx 2>/dev/null
+# 4. Paleidžiame ir įgaliname visus servisus
+systemctl daemon-reload
+systemctl enable nodews nginx
+systemctl restart nodews nginx
 
 cat > /etc/squid/squid.conf << 'EOF'
 acl Safe_ports port 80

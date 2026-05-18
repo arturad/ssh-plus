@@ -350,7 +350,6 @@ echo -e "\033[1;36m[05]\033[0m • KEISTI LIMITĄ            \033[1;36m[13]\033[
 echo -e "\033[1;36m[06]\033[0m • KEISTI SLAPTAŽODĮ        \033[1;36m[14]\033[0m • BLOKUOTI TORRENTUS"
 echo -e "\033[1;36m[07]\033[0m • DUOMENŲ MONITORIUS       \033[1;36m[15]\033[0m • BADVPN"
 echo -e "\033[1;36m[08]\033[0m • SPEEDTEST                \033[1;36m[16]\033[0m • TELEGRAM BOT"
-echo -e "\033[1;36m[08]\033[0m • PRISIJUNGE VARTOTOJAI
 
 echo ""
 echo -e "\033[1;31m[00]\033[0m • IŠEITI <<<"
@@ -797,20 +796,6 @@ menu
 16|16)
 clear
 echo "Telegram botas bus pridėtas vėliau."
-read -p "Spausk ENTER..." pause
-menu
-;;
-17|17)
-clear
-
-echo "==========================="
-echo " PRISIJUNGĘ VARTOTOJAI"
-echo "==========================="
-echo ""
-
-ps aux | grep -E "sshd|dropbear" | grep -v grep | awk '{print $1}' | sort | uniq -c
-
-echo ""
 read -p "Spausk ENTER..." pause
 menu
 ;;

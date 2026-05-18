@@ -30,8 +30,16 @@ nodejs \
 nginx
 
 mkdir -p /etc/arturo
-touch /etc/arturo/limitai.db
+
+# Jei failas dar neegzistuoja, tik tada jį sukuriame švarų
+if [ ! -f /etc/arturo/limitai.db ]; then
+    touch /etc/arturo/limitai.db
+fi
+
+# Visada užtikriname pilnas teises šiam failui ir visai direktorijai
 chmod -R 777 /etc/arturo
+chmod 777 /etc/arturo/limitai.db
+
 # =========================================================================
 # NAUJAS METODAS: NGINX PRIEKYJE (PORT 80) + NODE.JS FONE (PORT 8181)
 # =========================================================================

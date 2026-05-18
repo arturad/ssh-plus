@@ -297,7 +297,7 @@ echo -e "\033[1;34m====================================\033[0m"
 
 online=$(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd | while read user; do pgrep -u "$user" >/dev/null && echo "$user"; done | wc -l)
 
-TOTAL=$(ps aux | grep -E "sshd: $user|dropbear.*$user" | grep -v "priv" | grep -v grep | wc -l)
+total=$(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd | wc -l)
 
 expired=$(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd | while read user; do
 

@@ -105,21 +105,36 @@ systemctl enable nodews nginx
 systemctl restart nodews nginx
 
 cat > /etc/squid/squid.conf << 'EOF'
-acl Safe_ports port 80
-http_access allow CONNECT Safe_ports
-
+# Leidžiam srautą iš visų IP adresų
 acl all src 0.0.0.0/0
-acl CONNECT method CONNECT
 
+# Sukuriam taisykles visiems įmanomiems HTTP metodams
+acl ALL_METHODS method GET HEAD POST CONNECT PUT DELETE PATCH OPTIONS
+
+# IŠJUNGIAM portų ribojimus – leidžiam visus metodus į bet kokius hostus
+http_access allow ALL_METHODS
 http_access allow all
 http_reply_access allow all
 
+# Squid portas
 http_port 0.0.0.0:8080
+
+# DNS nustatymai, kad Squid surastų bet kokį tavo įrašytą hostą (pvz., vodafone.de)
 dns_v4_first on
+dns_nameservers 8.8.8.8 1.1.1.1
+
+# Paslepiam proxy pėdsakus nuo operatoriaus filtrų
+via off
+forwarded_for off
+request_header_access Allow allow all
+request_header_access Authorization allow all
+request_header_access Proxy-Authorization allow all
+request_header_access Proxy-Connection allow all
+request_header_access Proxy-Respond allow all
 
 visible_hostname VPSMANAGER
-
 EOF
+
 
 
 mkdir -p /etc/systemd/system/squid.service.d

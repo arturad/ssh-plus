@@ -808,7 +808,7 @@ echo " PRISIJUNGĘ VARTOTOJAI"
 echo "=========================="
 echo ""
 
-who | awk '{print $1}' | grep -v root | sort | uniq -c
+netstat -tnpa 2>/dev/null | grep ESTABLISHED | grep -E 'sshd|dropbear' | awk '{print $7}' | cut -d/ -f2 | sort | uniq -c
 
 echo ""
 read -p "Spausk ENTER..." pause

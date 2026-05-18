@@ -808,7 +808,7 @@ echo " PRISIJUNGĘ VARTOTOJAI"
 echo "=========================="
 echo ""
 
-	who | awk '{print $1}' | sort | uniq -c
+(ps -ef | grep -E "sshd:|dropbear" | grep -vE "root|priv|grep|awk" | awk '{print $NF}' | sed 's/\[//g; s/\]//g'; ps aux | grep -i dropbear | grep -v grep | awk '{print $1}' | grep -vE "root|dropbear") | sort | uniq -c
 
 
 echo ""

@@ -250,7 +250,7 @@ limit=$(cat /root/limit/$user 2>/dev/null)
 
 [ -z "$limit" ] && continue
 
-TOTAL=$(ps aux | grep -E "sshd|dropbear" | grep "$user" | grep -v grep | wc -l)
+TOTAL=$(ps aux | grep -E "sshd: $user|dropbear.*$user" | grep -v "priv" | grep -v grep | wc -l)
 
 if [ "$TOTAL" -gt "$limit" ]; then
 pkill -u "$user"

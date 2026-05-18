@@ -275,23 +275,30 @@ mkdir -p /root/limit
 
 cat > /usr/local/bin/userlimit.sh << 'EOF_USERLIMIT'
 #!/bin/bash
+
+# 1. VALYMAS: Ištriname pasibaigusius iš limitai.db
 if [ -s /etc/arturo/limitai.db ]; then
     while read -r user limit; do
-        # Praleidžiame tuščias eilutes arba netikrus sistemos žodžius
+        [[ -z "$user" || "$user" == "net" ]] && continue
+        if chage -l "$user" | grep -q "Account expires" && [ "$(date +%s)" -gt "$(date -d "$(chage -l "$user" | grep "Account expires" | cut -d: -f2)" +%s 2>/dev/null)" ]; then
+            sed -i "/^$user /d" /etc/arturo/limitai.db
+        fi
+    done < /etc/arturo/limitai.db
+fi
+
+# 2. KONTROLĖ: Tikriname limitus realiu laiku
+if [ -s /etc/arturo/limitai.db ]; then
+    while read -r user limit; do
         [[ -z "$user" || -z "$limit" || "$user" == "net" ]] && continue
-        
-        # Skaičiuojame TIK realius SSH seansus, kurie priklauso tam vartotojui
-        # Atmetame tavo pačio vykdomas tikrinimo komandas, kad pats savęs neišspirtų
         TOTAL=$(ps aux | grep -E "sshd: $user@|sshd: $user " | grep -v grep | wc -l)
-        
         if [ "$TOTAL" -gt "$limit" ]; then
-            # Atjungiame tik viršytus seansus
             pkill -f "sshd: $user"
             pkill -u "$user"
         fi
     done < /etc/arturo/limitai.db
 fi
 EOF_USERLIMIT
+
 
 
 

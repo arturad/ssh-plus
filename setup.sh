@@ -273,29 +273,25 @@ rm -rf /tmp/badvpn
 
 mkdir -p /root/limit
 
-cat > /usr/local/bin/userlimit.sh << 'EOF'
+# Sukuriame naują, protingą tikrintoją, palaikantį WS + SSL
+cat > /usr/local/bin/userlimit.sh << 'EOF_USERLIMIT'
 #!/bin/bash
-
-for user in $(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd); do
-
-    limit=$(cat /root/limit/$user 2>/dev/null)
-
-    [ -z "$limit" ] && continue
-
-    # Saugus ir tikslus prisijungimų skaičiavimas (ignoruojame mirštančius procesus)
-    TOTAL=$(pgrep -u "$user" -f "sshd:" | wc -l)
-
-    # Jei viršytas limitas, išmesta tik seniausią sesiją, o ne visą vartotoją!
-    if [ "$TOTAL" -gt "$limit" ]; then
-        # Surandame seniausią SSH procesą ir jį uždarome, kad tavo naujas ryšys liktų gyvas
-        OLDEST_PID=$(pgrep -u "$user" -f "sshd:" | head -n 1)
-        if [ ! -z "$OLDEST_PID" ] && [ "$TOTAL" -gt "$limit" ]; then
-            kill -9 "$OLDEST_PID"
+if [ -s /etc/arturo/limitai.db ]; then
+    while read -r user limit; do
+        [[ -z "$user" || -z "$limit" ]] && continue
+        
+        # Tiksliausias skaičiavimas: mato tiek SSL (Stunnel), tiek tavo WS (Node.js) seansus
+        TOTAL=$(ps aux | grep "sshd:" | grep -v grep | grep -c "$user")
+        
+        if [ "$TOTAL" -gt "$limit" ]; then
+            # Atjungiame tik viršytus seansus arba visus to userio procesus saugumo dėlei
+            pkill -f "sshd: $user"
+            pkill -u "$user"
         fi
-    fi
+    done < /etc/arturo/limitai.db
+fi
+EOF_USERLIMIT
 
-done
-EOF
 
 
 chmod +x /usr/local/bin/userlimit.sh

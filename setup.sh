@@ -808,7 +808,7 @@ echo " PRISIJUNGĘ VARTOTOJAI"
 echo "=========================="
 echo ""
 
-ps -ef | awk '/sshd: / && !/priv/ && !/root@/ && !/awk/ && $8 !~ /\/usr\/sbin\/sshd/ {for(i=1;i<=NF;i++) if($i=="sshd:") print $(i+1)}' | sort | uniq -c
+ps -ef | grep "sshd:" | grep -v "/usr/sbin/sshd" | grep -v "priv" | grep -v "root@" | grep -v grep | awk '{print $NF}' | sort | uniq -c
 
 echo ""
 read -p "Spausk ENTER..." pause

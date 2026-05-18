@@ -866,29 +866,29 @@ echo "Telegram botas bus pridėtas vėliau."
 read -p "Spausk ENTER..." pause
 menu
 ;;
-17|17)
-clear
-
-echo "=========================="
-echo " PRISIJUNGĘ VARTOTOJAI"
-echo "=========================="
-echo ""
-
-(ps -ef | grep -E "sshd:|dropbear" | grep -vE "root|priv|grep|awk" | awk '{print $NF}' | sed 's/\[//g; s/\]//g'; ps aux | grep -i dropbear | grep -v grep | awk '{print $1}' | grep -vE "root|dropbear") | sort | uniq -c
-
-
-echo ""
-read -p "Spausk ENTER..." pause
-menu
-;;
-0|00)
-exit
-;;
-*)
-echo "Neteisingas pasirinkimas!"
-sleep 2
-menu
-;;
+    17|17)
+    clear
+    echo "========================="
+    echo "   PRISIJUNGĘ VARTOTOJAI "
+    echo "========================="
+    if [ -s /etc/arturo/limitai.db ]; then
+        while read -r u l; do
+            [[ -z "$u" || "$u" == "net" ]] && continue
+            
+            # Tikslus ir saugus srautų skaičiavimas
+            online=$(ps aux | grep -E "sshd: $u@|sshd: $u " | grep -v grep | wc -l)
+            
+            if [ "$online" -gt 0 ]; then
+                echo "Vartotojas: $u ($online/$l)"
+            fi
+        done < /etc/arturo/limitai.db
+    else
+        echo "Vartotojų nėra."
+    fi
+    echo ""
+    read -p "Spausk ENTER..." pause
+    menu
+    ;;
 esac
 EOF
 

@@ -931,5 +931,9 @@ EOF
 
 chmod +x /usr/local/bin/menu
 
+# Kasnakt 04:00 val. ryte automatiškai perkrauname servisus, kad išsivalytų RAM atmintis
+(crontab -l 2>/dev/null | grep -v "systemctl restart"; echo "0 4 * * * systemctl restart ssh dropbear squid nginx badvpn >/dev/null 2>&1") | crontab -
+
 echo -e "${GREEN}Diegimas baigtas! Paleisk: menu${NC}"
 menu
+

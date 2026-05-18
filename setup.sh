@@ -804,11 +804,11 @@ menu
 clear
 
 echo "=========================="
-echo " PRISIJUNGE VARTOTOJAI"
+echo " PRISIJUNGĘ VARTOTOJAI"
 echo "=========================="
 echo ""
 
-ps aux | grep "sshd:" | grep -v grep | grep -v "\[priv\]" | awk '{print $11}' | cut -d@ -f1 | grep -v root | sort | uniq -c
+who | awk '{print $1}' | grep -v root | sort | uniq -c
 
 echo ""
 read -p "Spausk ENTER..." pause

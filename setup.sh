@@ -276,11 +276,14 @@ mkdir -p /root/limit
 cat > /usr/local/bin/userlimit.sh << 'EOF_USERLIMIT'
 #!/bin/bash
 
-# 1. VALYMAS: Ištriname pasibaigusius iš limitai.db
+# 1. VALYMAS: Jei laikas pasibaigė, visiškai ištriname vartotoją iš serverio
 if [ -s /etc/arturo/limitai.db ]; then
     while read -r user limit; do
         [[ -z "$user" || "$user" == "net" ]] && continue
         if chage -l "$user" | grep -q "Account expires" && [ "$(date +%s)" -gt "$(date -d "$(chage -l "$user" | grep "Account expires" | cut -d: -f2)" +%s 2>/dev/null)" ]; then
+            pkill -f "sshd: $user" >/dev/null 2>&1
+            pkill -u "$user" >/dev/null 2>&1
+            userdel -f "$user" >/dev/null 2>&1
             sed -i "/^$user /d" /etc/arturo/limitai.db
         fi
     done < /etc/arturo/limitai.db
@@ -298,6 +301,9 @@ if [ -s /etc/arturo/limitai.db ]; then
     done < /etc/arturo/limitai.db
 fi
 EOF_USERLIMIT
+
+
+
 
 
 # Sukuriame direktoriją, jei jos nėra

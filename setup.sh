@@ -783,39 +783,69 @@ wget -O /root/setup.sh https://raw.githubusercontent.com/arturad/ssh-plus/main/s
 chmod +x /root/setup.sh
 bash /root/setup.sh
 ;;
-14)
-clear
-echo "======================"
-echo " TORRENT BLOKAVIMAS"
-echo "======================"
-echo ""
-echo "[1] Blokuoti torrentus"
-echo "[2] Atblokuoti torrentus"
-echo ""
+    14)
+        clear
+        echo "============================="
+        echo "      TORRENT BLOKAVIMAS     "
+        echo "============================="
+        echo ""
+        echo " [1] Blokuoti torrentus"
+        echo " [2] Atblokuoti torrentus"
+        echo ""
+        read -p "Pasirinkimas: " tor
 
-read -p "Pasirinkimas: " tor
+        case $tor in
+            1)
+                # Pirmiausia išvalome senas, kad nesidubliuotų
+                iptables -D FORWARD -m string --algo bm --string "bittorrent" -j DROP 2>/dev/null
+                iptables -D FORWARD -m string --algo bm --string "announce" -j DROP 2>/dev/null
+                iptables -D FORWARD -m string --algo bm --string "info_hash" -j DROP 2>/dev/null
+                iptables -D FORWARD -p udp --dport 1024:65535 -m string --algo bm --string "tracker" -j DROP 2>/dev/null
+                iptables -D FORWARD -p tcp --dport 6881:6999 -j DROP 2>/dev/null
+                iptables -D FORWARD -p udp --dport 6881:6999 -j DROP 2>/dev/null
 
-case $tor in
-1)
-iptables -A OUTPUT -p tcp --dport 6881:6999 -j DROP
-iptables -A OUTPUT -p udp --dport 6881:6999 -j DROP
-echo ""
-echo "Torrentai užblokuoti!"
-;;
-2)
-iptables -D OUTPUT -p tcp --dport 6881:6999 -j DROP 2>/dev/null
-iptables -D OUTPUT -p udp --dport 6881:6999 -j DROP 2>/dev/null
-echo ""
-echo "Torrentai atblokuoti!"
-;;
-*)
-echo "Neteisingas pasirinkimas!"
-;;
-esac
+                # 🚫 Įjungiame stiprų filtravimą pagal paketo turinį
+                iptables -A FORWARD -m string --algo bm --string "bittorrent" -j DROP
+                iptables -A FORWARD -m string --algo bm --string "announce" -j DROP
+                iptables -A FORWARD -m string --algo bm --string "info_hash" -j DROP
+                iptables -A FORWARD -p udp --dport 1024:65535 -m string --algo bm --string "tracker" -j DROP
 
-read -p "Spausk ENTER..." pause
-menu
-;;
+                # 🚫 Uždarome išplėstus Torrent portus
+                iptables -A FORWARD -p tcp --dport 6881:6999 -j DROP
+                iptables -A FORWARD -p udp --dport 6881:6999 -j DROP
+
+                # Išsaugome taisykles, kad liktų po restarto
+                apt install iptables-persistent -y >/dev/null 2>&1
+                netfilter-persistent save >/dev/null 2>&1
+                
+                echo ""
+                echo "✅ Torrentai sėkmingai užblokuoti!"
+                ;;
+            2)
+                # 🟢 Atblokuojame - ištriname visas sukurtas taisykles
+                iptables -D FORWARD -m string --algo bm --string "bittorrent" -j DROP 2>/dev/null
+                iptables -D FORWARD -m string --algo bm --string "announce" -j DROP 2>/dev/null
+                iptables -D FORWARD -m string --algo bm --string "info_hash" -j DROP 2>/dev/null
+                iptables -D FORWARD -p udp --dport 1024:65535 -m string --algo bm --string "tracker" -j DROP 2>/dev/null
+                iptables -D FORWARD -p tcp --dport 6881:6999 -j DROP 2>/dev/null
+                iptables -D FORWARD -p udp --dport 6881:6999 -j DROP 2>/dev/null
+
+                # Išsaugome tuščią būseną
+                netfilter-persistent save >/dev/null 2>&1
+
+                echo ""
+                echo "✅ Torrentai sėkmingai atblokuoti!"
+                ;;
+            *)
+                echo ""
+                echo "Neteisingas pasirinkimas!"
+                ;;
+        esac
+
+        read -p "Spausk ENTER..." pause
+        menu
+        ;;
+
 15|15)
 clear
 

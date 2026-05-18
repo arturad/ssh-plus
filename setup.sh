@@ -324,7 +324,7 @@ echo ""
 echo -e "${GREEN}SERVERIO PAVADINIMAS :${NC} $(hostname)"
 echo -e "${GREEN}DATA :${NC} $(date +'%d-%m-%y')"
 echo -e "${GREEN}LAIKAS :${NC} $(date +'%T')"
-echo -e "${GREEN}@Arturas${NC}"
+echo -e "${GREEN}@mekigis${NC}"
 echo -e "${RED}NAUDOKITE KOMANDA ( menu ) IEITI I SCRIPTĄ.${NC}"
 echo ""
 EOF_BANNER

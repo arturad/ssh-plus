@@ -262,18 +262,25 @@ cat > /usr/local/bin/userlimit.sh << 'EOF'
 
 for user in $(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1}' /etc/passwd); do
 
-limit=$(cat /root/limit/$user 2>/dev/null)
+    limit=$(cat /root/limit/$user 2>/dev/null)
 
-[ -z "$limit" ] && continue
+    [ -z "$limit" ] && continue
 
-TOTAL=$(ps aux | grep -E "sshd: $user|dropbear.*$user" | grep -v "priv" | grep -v grep | wc -l)
+    # Saugus ir tikslus prisijungimų skaičiavimas (ignoruojame mirštančius procesus)
+    TOTAL=$(pgrep -u "$user" -f "sshd:" | wc -l)
 
-if [ "$TOTAL" -gt "$limit" ]; then
-pkill -u "$user"
-fi
+    # Jei viršytas limitas, išmesta tik seniausią sesiją, o ne visą vartotoją!
+    if [ "$TOTAL" -gt "$limit" ]; then
+        # Surandame seniausią SSH procesą ir jį uždarome, kad tavo naujas ryšys liktų gyvas
+        OLDEST_PID=$(pgrep -u "$user" -f "sshd:" | head -n 1)
+        if [ ! -z "$OLDEST_PID" ] && [ "$TOTAL" -gt "$limit" ]; then
+            kill -9 "$OLDEST_PID"
+        fi
+    fi
 
 done
 EOF
+
 
 chmod +x /usr/local/bin/userlimit.sh
 

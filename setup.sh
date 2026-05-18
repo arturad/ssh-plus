@@ -349,8 +349,18 @@ cat > /usr/local/bin/menu << 'EOF'
 #!/bin/bash
 
 clear
+# Sukuriame trūkstamus sistemos informacijos kintamuosius
+OS=$(lsb_release -ds | tr -d '"')
+RAM_TOTAL=$(free -h | grep "Mem:" | awk '{print $2}')
+RAM_USED_RAW=$(free | grep "Mem:" | awk '{print $3}')
+RAM_TOTAL_RAW=$(free | grep "Mem:" | awk '{print $2}')
+RAM_USED=$((RAM_USED_RAW * 100 / RAM_TOTAL_RAW))
+TIME=$(date +'%T')
+
+# Iškviečiame viršutinį logotipą
 [ -f /etc/arturo/banner ] && bash /etc/arturo/banner
 
+# Atvaizduojame gautą statistiką ekrane
 echo -e "\033[1;32mSISTEMA\033[0m"
 echo "OS: $OS"
 echo "Laikas: $TIME"
@@ -359,6 +369,7 @@ echo ""
 echo -e "\033[1;32mATMINTIS RAM\033[0m"
 echo "Iš viso: $RAM_TOTAL"
 echo "Naudoja: ${RAM_USED}%"
+
 
 echo ""
 echo -e "\033[1;34m=========================================\033[0m"

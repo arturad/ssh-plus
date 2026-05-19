@@ -262,11 +262,18 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl enable badvpn
-pkill badvpn-udpgw 2>/dev/null
-fuser -k 7300/tcp 2>/dev/null
-fuser -k 7300/udp 2>/dev/null
-systemctl restart badvpn
+systemctl enable squid >/dev/null 2>&1
+
+# Duodame serveriui sekundę „įkvėpti“ ir keliam servisus
+sleep 1
+systemctl restart apache2 >/dev/null 2>&1
+systemctl restart ssh >/dev/null 2>&1
+systemctl restart dropbear >/dev/null 2>&1
+
+# SQUID SPRENDIMAS: prieš jį paleidžiant duodame 2 sekundes tinklui stabilizuotis
+sleep 2
+systemctl restart squid >/dev/null 2>&1
+
 
 cd /root
 rm -rf /tmp/badvpn

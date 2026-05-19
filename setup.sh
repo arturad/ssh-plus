@@ -47,34 +47,32 @@ chmod 777 /etc/arturo/limitai.db
 # 1. Sukuriame Node.js WebSocket tiltą ant porto 8181
 mkdir -p /etc/arturo
 cat << 'EOF_NODEJS' > /etc/arturo/sh.js
-
 const net = require('net');
+
 const server = net.createServer((socket) => {
     socket.once('data', (buffer) => {
-        const data = buffer.toString();
+        const data = buffer.toString().toLowerCase();
+
         const ssh = net.connect(22, '127.0.0.1', () => {
-            if (data.includes('Upgrade: websocket')) {
+            if (data.includes('upgrade: websocket')) {
                 socket.write(
-                    "HTTP/1.1 101 Script By Arturo\r\n" +
+                    "HTTP/1.1 101 Switching Protocols\r\n" +
                     "Upgrade: websocket\r\n" +
                     "Connection: Upgrade\r\n\r\n"
                 );
-                ssh.pipe(socket);
-                socket.pipe(ssh);
             } else {
                 ssh.write(buffer);
-                ssh.pipe(socket);
-                socket.pipe(ssh);
             }
+
+            ssh.pipe(socket);
+            socket.pipe(ssh);
         });
-        ssh.setKeepAlive(true);
-        ssh.setNoDelay(true);
-        socket.setKeepAlive(true);
-        socket.setNoDelay(true);
+
         ssh.on('error', () => socket.destroy());
         socket.on('error', () => ssh.destroy());
     });
 });
+
 server.listen(8181, '127.0.0.1');
 EOF_NODEJS
 

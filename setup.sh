@@ -146,10 +146,8 @@ request_header_access Proxy-Connection allow all
 request_header_access Proxy-Respond allow all
 
 visible_hostname VPSMANAGER
-EOF_SQUID
+EOF
 
-
-⅜
 
 mkdir -p /etc/systemd/system/squid.service.d
 cat > /etc/systemd/system/squid.service.d/override.conf << 'EOF_SQUID_OVERRIDE'

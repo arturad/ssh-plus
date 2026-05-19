@@ -111,6 +111,13 @@ server {
 }
 EOF_NGINX
 
+rm -f /etc/nginx/sites-enabled/default
+rm -f /etc/nginx/conf.d/default.conf
+
+# 4. Paleidžiame ir įgaliname visus servisus
+systemctl daemon-reload
+systemctl enable nodews nginx
+systemctl restart nodews nginx
 
 # 4. Paleidžiame ir įgaliname visus servisus
 systemctl daemon-reload

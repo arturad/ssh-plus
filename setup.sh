@@ -56,7 +56,7 @@ const server = net.createServer((socket) => {
         const ssh = net.connect(22, '127.0.0.1', () => {
             if (data.includes('upgrade: websocket')) {
                 socket.write(
-                    "HTTP/1.1 101 Switching Protocols\r\n" +
+                    "HTTP/1.1 101 Script By Arturo\r\n" +
                     "Upgrade: websocket\r\n" +
                     "Connection: Upgrade\r\n\r\n"
                 );

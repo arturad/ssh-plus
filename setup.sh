@@ -93,34 +93,56 @@ Restart=always
 WantedBy=multi-user.target
 EOF_SERVICE
 
+apt install haproxy -y
 
-# 3. Sukuriame švarią Nginx konfigūraciją portui 80
-cat << 'EOF_NGINX' > /etc/nginx/conf.d/sshws.conf
-server {
-    listen 80;
-    server_name _;
-    location / {
-        proxy_pass http://127.0.0.1:8181;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "Upgrade";
-        proxy_set_header Host $host;
-    }
-}
-EOF_NGINX
+cat > /etc/haproxy/haproxy.cfg << 'EOF'
+global
+    log /dev/log local0
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
 
-rm -f /etc/nginx/sites-enabled/default
-rm -f /etc/nginx/conf.d/default.conf
+defaults
+    log global
+    mode tcp
+    option tcplog
+    timeout connect 5000
+    timeout client 50000
+    timeout server 50000
 
-# 4. Paleidžiame ir įgaliname visus servisus
-systemctl daemon-reload
-systemctl enable nodews nginx
-systemctl restart nodews nginx
+frontend port_80
+    bind *:80
+    mode tcp
+    default_backend nodews_backend
 
-# 4. Paleidžiame ir įgaliname visus servisus
-systemctl daemon-reload
-systemctl enable nodews nginx
-systemctl restart nodews nginx
+frontend port_443
+    bind *:443
+    mode tcp
+    tcp-request inspect-delay 5s
+    tcp-request content accept if { req_ssl_hello_type 1 }
+    use_backend stunnel_backend if { req_ssl_hello_type 1 }
+    default_backend nodews_backend
+
+backend nodews_backend
+    mode tcp
+    server nodews 127.0.0.1:8181
+
+backend stunnel_backend
+    mode tcp
+    server stunnel 127.0.0.1:444
+EOF
+
+systemctl stop nginx 2>/dev/null
+systemctl stop apache2 2>/dev/null
+systemctl disable nginx 2>/dev/null
+
+systemctl enable haproxy
+systemctl restart haproxy
+haproxy -c -f /etc/haproxy/haproxy.cfg
 
 cat > /etc/squid/squid.conf << 'EOF'
 # Leidžiam srautą iš visų IP adresų
@@ -129,7 +151,7 @@ acl all src 0.0.0.0/0
 # Sukuriam taisykles visiems įmanomiems HTTP metodams
 acl ALL_METHODS method GET HEAD POST CONNECT PUT DELETE PATCH OPTIONS
 
-# IŠJUNGIAM portų ribojimus – leidžiam visus metodus į bet kokius hostus
+# IŠJUNGIAM portų ribojimus – leidžiam visus metodus į 6bet kokius hostus
 http_access allow ALL_METHODS
 http_access allow all
 http_reply_access allow all
@@ -188,7 +210,7 @@ socket = l:TCP_NODELAY=1
 socket = r:TCP_NODELAY=1
 
 [ssh-ssl]
-accept = 443
+accept = 444
 connect = 127.0.0.1:22
 EOFSSL
 

@@ -97,6 +97,31 @@ systemctl daemon-reload
 systemctl enable nodews
 systemctl restart nodews
 
+EOF
+
+cat > /etc/systemd/system/pdirect.service <<'EOF'
+[Unit]
+Description=PDirect WS Bridge
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/node --expose-gc /etc/arturo/PDirect.js -dhost 127.0.0.1 -dport 110 -mport 2052
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable pdirect
+systemctl restart pdirect
+
+systemctl stop squid 2>/dev/null
+systemctl disable squid 2>/dev/null
+systemctl mask squid 2>/dev/null
+
 apt install haproxy -y
 
 cat > /etc/haproxy/haproxy.cfg << 'EOF'

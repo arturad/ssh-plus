@@ -93,6 +93,10 @@ Restart=always
 WantedBy=multi-user.target
 EOF_SERVICE
 
+systemctl daemon-reload
+systemctl enable nodews
+systemctl restart nodews
+
 apt install haproxy -y
 
 cat > /etc/haproxy/haproxy.cfg << 'EOF'

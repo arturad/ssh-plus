@@ -122,56 +122,11 @@ systemctl stop squid 2>/dev/null
 systemctl disable squid 2>/dev/null
 systemctl mask squid 2>/dev/null
 
-apt install haproxy -y
-
-cat > /etc/haproxy/haproxy.cfg << 'EOF'
-global
-    log /dev/log local0
-    log /dev/log local1 notice
-    chroot /var/lib/haproxy
-    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
-    stats timeout 30s
-    user haproxy
-    group haproxy
-    daemon
-
-defaults
-    log global
-    mode tcp
-    option tcplog
-    timeout connect 5000
-    timeout client 50000
-    timeout server 50000
-
-frontend port_80
-    bind *:80
-    mode tcp
-    default_backend nodews_backend
-
-frontend port_443
-    bind *:443
-    mode tcp
-    tcp-request inspect-delay 5s
-    tcp-request content accept if { req_ssl_hello_type 1 }
-    use_backend stunnel_backend if { req_ssl_hello_type 1 }
-    default_backend nodews_backend
-
-backend nodews_backend
-    mode tcp
-    server nodews 127.0.0.1:8181
-
-backend stunnel_backend
-    mode tcp
-    server stunnel 127.0.0.1:444
-EOF
 
 systemctl stop nginx 2>/dev/null
 systemctl stop apache2 2>/dev/null
 systemctl disable nginx 2>/dev/null
 
-systemctl enable haproxy
-systemctl restart haproxy
-haproxy -c -f /etc/haproxy/haproxy.cfg
 
 cat > /etc/squid/squid.conf << 'EOF'
 # Leidžiam srautą iš visų IP adresų

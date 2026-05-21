@@ -97,6 +97,90 @@ systemctl daemon-reload
 systemctl enable nodews
 systemctl restart nodews
 
+cat > /etc/arturo/PDirect.js <<'EOF'
+const net = require('net');
+const stream = require('stream');
+const util = require('util');
+
+var dhost = "127.0.0.1";
+var dport = "109";
+var mainPort = "2052";
+var packetsToSkip = 0;
+var gcwarn = true;
+
+for(c = 0; c < process.argv.length; c++) {
+    switch(process.argv[c]) {
+        case "-skip":
+            packetsToSkip = process.argv[c + 1];
+            break;
+        case "-dhost":
+            dhost = process.argv[c + 1];
+            break;
+        case "-dport":
+            dport = process.argv[c + 1];
+            break;
+        case "-mport":
+            mainPort = process.argv[c + 1];
+            break;
+    }
+}
+
+function gcollector() {
+    if(!global.gc && gcwarn) {
+        console.log("[WARNING] Garbage Collector isn't enabled! Memory leaks may occur.");
+        gcwarn = false;
+        return;
+    } else if(global.gc) {
+        global.gc();
+        return;
+    }
+}
+
+setInterval(gcollector, 1000);
+
+const server = net.createServer();
+
+server.on('connection', function(socket) {
+    var packetCount = 0;
+    var anu = "Script By Arturo";
+
+    socket.write("HTTP/1.1 101 " + anu + "\r\nContent-Length: 1048576000000\r\n\r\n");
+
+    var conn = net.createConnection({host: dhost, port: dport});
+
+    socket.on('data', function(data) {
+        if(packetCount < packetsToSkip) {
+            packetCount++;
+        } else if(packetCount == packetsToSkip) {
+            conn.write(data);
+        }
+
+        if(packetCount > packetsToSkip) {
+            packetCount = packetsToSkip;
+        }
+    });
+
+    conn.on('data', function(data) {
+        socket.write(data);
+    });
+
+    socket.on('error', function() {
+        conn.destroy();
+    });
+
+    conn.on('error', function() {
+        socket.destroy();
+    });
+
+    socket.on('close', function() {
+        conn.destroy();
+    });
+});
+
+server.listen(mainPort, function(){
+    console.log("[INFO] Server started on port: " + mainPort);
+    console.log("[INFO] Redirecting requests to: " + dhost + " at port " + dport);
+});
 EOF
 
 cat > /etc/systemd/system/pdirect.service <<'EOF'

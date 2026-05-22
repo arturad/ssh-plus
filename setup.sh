@@ -791,8 +791,30 @@ read -p "Spausk ENTER..."
 4)
 clear
 echo "Įkelkite backup failą į /root/"
-echo "Failo pavadinimas: backup.tar.gz"
-read -p "Spausk ENTER..."
+read -p "Failo pavadinimas [backup.tar.gz]: " BKP
+
+if [[ -z "$BKP" ]]; then
+    BKP="backup.tar.gz"
+fi
+
+if [[ ! -f "/root/$BKP" ]]; then
+    echo "KLAIDA: failas /root/$BKP nerastas!"
+    read -p "Spausk ENTER..."
+else
+    echo "Atkuriamas backup..."
+    tar -xzf "/root/$BKP" -C /
+
+    echo "Backup atkurtas!"
+    echo "Perkraunami servisai..."
+
+    systemctl restart ssh 2>/dev/null
+    systemctl restart dropbear 2>/dev/null
+    systemctl restart squid 2>/dev/null
+    systemctl restart stunnel4 2>/dev/null
+    systemctl restart apache2 2>/dev/null
+
+    read -p "Spausk ENTER..."
+fi
 ;;
 
 5)

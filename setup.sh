@@ -149,16 +149,10 @@ systemctl restart haproxy
 haproxy -c -f /etc/haproxy/haproxy.cfg
 
 cat > /etc/squid/squid.conf << 'EOF'
-# Leidžiam srautą iš visų IP adresų
-acl all src 0.0.0.0/0
+acl mano_serveris dst tavo_ip
 
-# Sukuriam taisykles visiems įmanomiems HTTP metodams
-acl ALL_METHODS method GET HEAD POST CONNECT PUT DELETE PATCH OPTIONS
-
-# IŠJUNGIAM portų ribojimus – leidžiam visus metodus į 6bet kokius hostus
-http_access allow ALL_METHODS
-http_access allow all
-http_reply_access allow all
+http_access allow mano_serveris
+http_access deny all
 
 # Squid portas
 http_port 0.0.0.0:8080

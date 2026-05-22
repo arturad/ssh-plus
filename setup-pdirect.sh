@@ -202,6 +202,9 @@ systemctl daemon-reload
 systemctl enable pdirect
 systemctl restart pdirect
 
+iptables -t nat -D PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 2052 2>/dev/null
+iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 2052
+
 systemctl stop squid 2>/dev/null
 systemctl disable squid 2>/dev/null
 systemctl mask squid 2>/dev/null

@@ -921,7 +921,7 @@ menu
 clear
 echo "Atnaujinamas skriptas..."
 
-bash <(curl -Ls https://raw.githubusercontent.com/arturad/ssh-plus/main/setup-pdirect.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/arturad/ssh-plus/main/setup.sh)
 ;;
     14)
         clear

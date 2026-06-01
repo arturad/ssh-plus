@@ -390,7 +390,7 @@ fi
 if [ -s /etc/arturo/limitai.db ]; then
     while read -r user limit; do
         [[ -z "$user" || -z "$limit" || "$user" == "net" ]] && continue
-        TOTAL=$(ps aux | grep -E "sshd: $user@|sshd: $user " | grep -v grep | grep -v "\[priv\]" | wc -l)
+        TOTAL=$(ps aux | grep -E "sshd: $user@|sshd: $user " | grep -v grep | wc -l)
         if [ "$TOTAL" -gt "$limit" ]; then
             pkill -f "sshd: $user"
             pkill -u "$user"

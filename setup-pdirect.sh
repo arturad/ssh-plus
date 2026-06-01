@@ -386,31 +386,21 @@ if [ -s /etc/arturo/limitai.db ]; then
     done < /etc/arturo/limitai.db
 fi
 
-# 2. KONTROLĖ: Tikriname limitus realiu laiku
+# 2. KONTROLE: Tikriname limitus realiu laiku
 if [ -s /etc/arturo/limitai.db ]; then
     while read -r user limit; do
         [[ -z "$user" || -z "$limit" || "$user" == "net" ]] && continue
+        
+        # Tikslesnis skaičiavimas: skaičiuojame tik to vartotojo procesus
         TOTAL=$(ps -u "$user" -o pid= | wc -l)
-
-FLAG="/tmp/limit_${user}"
-
-if [ "$TOTAL" -gt "$limit" ]; then
-    if [ -f "$FLAG" ]; then
-        OLD=$(cat "$FLAG")
-        NOW=$(date +%s)
-        DIFF=$((NOW - OLD))
-
-        if [ "$DIFF" -ge 25 ]; then
+        
+        if [ "$TOTAL" -gt "$limit" ]; then
             pkill -f "sshd: $user"
             pkill -u "$user"
-            rm -f "$FLAG"
         fi
-    else
-        date +%s > "$FLAG"
-    fi
-else
-    rm -f "$FLAG"
+    done < /etc/arturo/limitai.db
 fi
+
 EOF_USERLIMIT
 
 

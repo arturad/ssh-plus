@@ -390,7 +390,7 @@ fi
 if [ -s /etc/arturo/limitai.db ]; then
     while read -r user limit; do
         [[ -z "$user" || -z "$limit" || "$user" == "net" ]] && continue
-        TOTAL=$(ps aux | grep -E "sshd: $user@|sshd: $user " | grep -v grep | grep -v "\[priv\]" | grep -v "\[net\]" | wc -l)
+        TOTAL=$(ps -u "$user" -o pid= | wc -l)
 
 FLAG="/tmp/limit_${user}"
 

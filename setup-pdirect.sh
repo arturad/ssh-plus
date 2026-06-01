@@ -392,7 +392,7 @@ if [ -s /etc/arturo/limitai.db ]; then
         [[ -z "$user" || -z "$limit" || "$user" == "net" ]] && continue
         
         # Tikslesnis skaičiavimas: skaičiuojame tik to vartotojo procesus
-        TOTAL=$(ps -u "$user" -o pid= | wc -l)
+        TOTAL=$(ss -ntu | grep -E ":80|:443|:22|:110" | grep "$user" | awk '{print $5}' | cut -d: -f1 | sort | uniq | wc -l)
         
         if [ "$TOTAL" -gt "$limit" ]; then
             pkill -f "sshd: $user"

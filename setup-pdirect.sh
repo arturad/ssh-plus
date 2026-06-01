@@ -390,12 +390,26 @@ fi
 if [ -s /etc/arturo/limitai.db ]; then
     while read -r user limit; do
         [[ -z "$user" || -z "$limit" || "$user" == "net" ]] && continue
-        TOTAL=$(ps aux | grep -E "sshd: $user@|sshd: $user " | grep -v grep | wc -l)
-        if [ "$TOTAL" -gt "$limit" ]; then
+        TOTAL=$(ps aux | grep -E "sshd: $user@|sshd: $user " | grep -v grep | grep -v "\[priv\]" | grep -v "\[net\]" | wc -l)
+
+FLAG="/tmp/limit_${user}"
+
+if [ "$TOTAL" -gt "$limit" ]; then
+    if [ -f "$FLAG" ]; then
+        OLD=$(cat "$FLAG")
+        NOW=$(date +%s)
+        DIFF=$((NOW - OLD))
+
+        if [ "$DIFF" -ge 25 ]; then
             pkill -f "sshd: $user"
             pkill -u "$user"
+            rm -f "$FLAG"
         fi
-    done < /etc/arturo/limitai.db
+    else
+        date +%s > "$FLAG"
+    fi
+else
+    rm -f "$FLAG"
 fi
 EOF_USERLIMIT
 

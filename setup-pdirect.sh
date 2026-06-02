@@ -389,7 +389,7 @@ fi
 # 2. KONTROLE: Tikriname limitus realiu laiku
 if [ -s /etc/arturo/limitai.db ]; then
     while read -r user limit; do
-        [[ -z "$user" || -z "$limit" || "$user" == "net" ]] && continue
+        [[ -z "$user"  -z "$limit"  "$user" == "net" ]] && continue
         TOTAL=$(ss -ntu | grep ":22" | grep "$user" | awk '{print $5}' | cut -d: -f1 | sort | uniq | wc -l)
         if [ "$TOTAL" -gt "$limit" ]; then
             pkill -f "sshd: $user"

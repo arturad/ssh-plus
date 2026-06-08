@@ -391,7 +391,7 @@ if [ -s /etc/arturo/limitai.db ]; then
     while read -r user limit; do
         [[ -z "$user" || -z "$limit" || "$user" == "net" ]] && continue
 
-        TOTAL=$(ps -ef | grep "sshd: $user" | grep -v grep | grep -v "\[priv\]" | wc -l)
+        TOTAL=$(ps -ef | grep -E "sshd: ${user}($| |\[)" | grep -v grep | grep -v "\[priv\]" | wc -l)
 
         if [ "$TOTAL" -gt "$limit" ]; then
             pkill -f "sshd: $user"
@@ -1073,7 +1073,7 @@ menu
             [[ -z "$u" || "$u" == "net" ]] && continue
             
             # Tikslus ir saugus srautų skaičiavimas
-            online=$(ps -ef | grep "sshd: $u" | grep -v grep | grep -v "\[priv\]" | wc -l)
+            online=$(ps -ef | grep -E "sshd: ${u}($| |\[)" | grep -v grep | grep -v "\[priv\]" | wc -l)
             
             if [ "$online" -gt 0 ]; then
                 echo "Vartotojas: $u ($online/$l)"

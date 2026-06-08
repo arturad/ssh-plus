@@ -1073,7 +1073,7 @@ menu
             [[ -z "$u" || "$u" == "net" ]] && continue
             
             # Tikslus ir saugus srautų skaičiavimas
-            online=$(ps aux | grep -E "sshd: $u@|sshd: $u " | grep -v grep | wc -l)
+            online=$(ps -ef | grep "sshd: $u" | grep -v grep | grep -v "\[priv\]" | wc -l)
             
             if [ "$online" -gt 0 ]; then
                 echo "Vartotojas: $u ($online/$l)"

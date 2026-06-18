@@ -374,7 +374,7 @@ cat > /usr/local/bin/userlimit.sh << 'EOF_USERLIMIT'
 #!/bin/bash
 
 # 1. VALYMAS: Jei laikas pasibaigė, visiškai ištriname vartotoją iš serverio
-if [ -s /etc/arturo/limitai.db ]; then
+if false; then
     while read -r user limit; do
         [[ -z "$user" || "$user" == "net" ]] && continue
         if chage -l "$user" | grep -q "Account expires" && [ "$(date +%s)" -gt "$(date -d "$(chage -l "$user" | grep "Account expires" | cut -d: -f2)" +%s 2>/dev/null)" ]; then

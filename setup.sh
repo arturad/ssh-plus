@@ -318,18 +318,6 @@ if [ -s /etc/arturo/limitai.db ]; then
         fi
     done < /etc/arturo/limitai.db
 fi
-
-# 2. KONTROLĖ: Tikriname limitus realiu laiku
-if [ -s /etc/arturo/limitai.db ]; then
-    while read -r user limit; do
-        [[ -z "$user" || -z "$limit" || "$user" == "net" ]] && continue
-        TOTAL=$(ps aux | grep -E "sshd: $user@|sshd: $user " | grep -v grep | wc -l)
-        if [ "$TOTAL" -gt "$limit" ]; then
-            pkill -f "sshd: $user"
-            pkill -u "$user"
-        fi
-    done < /etc/arturo/limitai.db
-fi
 EOF_USERLIMIT
 
 

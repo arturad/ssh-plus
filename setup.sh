@@ -50,10 +50,16 @@ cat << 'EOF_NODEJS' > /etc/arturo/sh.js
 const net = require('net');
 
 const server = net.createServer((socket) => {
-    socket.once('data', (buffer) => {
+    socket.setKeepAlive(true, 30000);
+    socket.setNoDelay(true);
+    socket.setTimeout(0);    
+    socket.once('data', (buffer) => {   
         const data = buffer.toString().toLowerCase();
 
         const ssh = net.connect(22, '127.0.0.1', () => {
+                    ssh.setKeepAlive(true, 30000);
+            ssh.setNoDelay(true);
+            ssh.setTimeout(0);    
             if (data.includes('upgrade: websocket')) {
                 socket.write(
                     "HTTP/1.1 101 Script By Arturo\r\n" +
